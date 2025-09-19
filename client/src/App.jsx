@@ -2,7 +2,7 @@
 export default function App() {
   return (
     <div>
-      Hello, world!
+      Boh
     </div>
   );
 }

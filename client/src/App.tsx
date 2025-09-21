@@ -12,6 +12,9 @@ export default function App() {
   const [hungerValue] = useState(0.5);
   const [thirstValue] = useState(0.4);
 
+  // -> nuovo: posizione centro cerchio (viewport px)
+  const [circleCenterX, setCircleCenterX] = useState<number | null>(null);
+
   // stato di clima e temperatura
   const [climate, setClimate] = useState<-2 | -1 | 0 | 1 | 2>(0);
   const [temperature, setTemperature] = useState<number>(20);
@@ -32,7 +35,7 @@ export default function App() {
     [2]: [35, 45],
   };
 
-  // logica temperatura
+  // logica temperatura (lasciata intatta)
   useEffect(() => {
     const [min, max] = ranges[climate] ?? [15, 25];
     let target = min + Math.random() * (max - min);
@@ -45,7 +48,6 @@ export default function App() {
     const id = window.setInterval(() => {
       setTemperature((prev) => {
         if (transitioningRef.current) {
-          // transizione rapida
           let step = transDelta * (target > prev ? 1 : -1);
           let next = prev + step;
 
@@ -55,7 +57,6 @@ export default function App() {
           }
           return next;
         } else {
-          // oscillazione casuale
           const jitter = (Math.random() - 0.5) * oscDelta * 0.5;
           let next = prev + dirRef.current * oscDelta + jitter;
 
@@ -77,7 +78,7 @@ export default function App() {
     return () => window.clearInterval(id);
   }, [climate]);
 
-  // fullscreen toggle
+  // fullscreen toggle (intatto)
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement && containerRef.current) {
@@ -117,6 +118,8 @@ export default function App() {
           strokeWidth={12}
           color="#dfffff"
           backgroundColor="#10233d"
+          // **passiamo il setter**: MonitorWidget chiamerà questo callback con il centro X
+          onCenterChange={(x: number) => setCircleCenterX(x)}
         />
       </div>
 
@@ -184,8 +187,8 @@ export default function App() {
         ))}
       </div>
 
-      {/* pagina principale */}
-      <HomePage />
+      {/* pagina principale: passiamo circleCenterX */}
+      <HomePage circleCenterX={circleCenterX} />
     </div>
   );
 }

@@ -13,34 +13,66 @@
   font-family: Arial, sans-serif;
 }
 
+/* overlay clip wrapper (width impostata inline da HomePage) */
+.select-overlay-clip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* immagine overlay, riempie il contenitore e si deforma (object-fit: fill) */
+.select-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.7;
+}
+
 /* Toggle menu a sinistra (fixed) */
 .toggle-container {
   position: fixed;
-  top: 4%;
-  left: 2%;
+  top: 2.5%;
+  left: 1.3%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 2000;
+  z-index: 2000; /* sopra l'overlay */
 }
 
 /* Toggle button */
 .circle.toggle-circle {
-  width: 70px;
+  position: relative;
+  width: 65px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background-image: url('/selectbg.png');
-  background-size: cover;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  color: lightblue;
-  margin-bottom: 10px;
+  color: #dfffff;
+  margin-bottom: 5px;
   border: none;
   transition: transform 0.18s ease, outline 0.18s ease;
 }
-
+.circle.toggle-circle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/hexbg.png');
+  background-size: cover;
+  opacity: 0.5;
+  z-index: -1;
+}
 .circle.toggle-circle:hover,
 .circle.toggle-circle:focus {
   outline: 2px solid #dfffff;
@@ -59,7 +91,6 @@
   pointer-events: none;
   transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2,0.9,0.3,1);
 }
-
 .sliding-icons.open {
   opacity: 1;
   transform: translateY(0);
@@ -70,9 +101,9 @@
 .icon-container {
   background: none;
   border: none;
-  margin: 12px 0;
+  margin: 6px 0;
   cursor: pointer;
-  color: lightblue;
+  color: #dfffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -83,7 +114,6 @@
   border-radius: 50%;
   overflow: visible;
 }
-
 .icon-container:hover {
   color: rgba(0, 191, 255, 0.7);
   transform: scale(1.08);
@@ -93,8 +123,8 @@
 .icon-container.active::before {
   content: "";
   position: absolute;
-  width: 46px;
-  height: 46px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background-color: rgba(0, 191, 255, 0.7);
   top: 0;
@@ -105,15 +135,14 @@
 /* Monitor widget fixed container (overlay) */
 .monitor-widget-fixed {
   position: fixed;
-  top: 5%;
-  right: 2%;
-  width: 200px;
-  height: 200px;
+  top: 50%;
+  left: 2%;
+  transform: translateY(-50%);
+  width: 180px;
+  height: 180px;
   z-index: 2500;
-  pointer-events: none; /* so it does not intercept clicks; remove if you want interactivity */
+  pointer-events: none;
 }
-
-/* The svg inside the widget should be visible */
 .monitor-widget-fixed svg {
   display: block;
   width: 100%;
@@ -135,19 +164,13 @@
 
 /* Logo styling */
 .logo {
-  width: 820px; /* smaller and sensible default */
+  width: 820px;
   height: auto;
   filter: brightness(0) saturate(100%) invert(62%) sepia(87%) saturate(3000%) hue-rotate(170deg) brightness(100%) contrast(100%);
   opacity: 0.03;
 }
 
-/* hide previous "clicked" text */
-.active-section,
-.select-prompt {
-  display: none;
-}
-
-/* simple reset for the climate buttons in App (optional) */
+/* simple reset for buttons */
 button {
   font: inherit;
   padding: 6px 8px;
@@ -159,8 +182,7 @@ button {
 }
 button:hover { filter: brightness(1.1); }
 
-
-/* fullscreen button: opzionale styling (puoi modificarlo) */
+/* fullscreen button */
 .fullscreen-toggle {
   position: fixed;
   bottom: 12px;

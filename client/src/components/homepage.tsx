@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBox, faDatabase, faHammer, faMap, faUser, faList } from "@fortawesome/free-solid-svg-icons";
-import MonitorWidget from "./monitorwidget";
 import "./homepage.css";
 
 type SectionKey = "inventario" | "database" | "crafting" | "mappa" | "utente";
@@ -18,25 +17,31 @@ export default function HomePage() {
     { key: "utente", icon: faUser },
   ];
 
-  const monitorValue = 0.65; // 65% test
+  const onIconClick = (key: SectionKey) => {
+    setSection(key);
+    setMenuOpen(false); // retract menu immediately after selection
+  };
 
   return (
     <div className="homepage-container">
-      {/* Toggle menu */}
+      {/* Toggle/menu */}
       <div className="toggle-container">
-        <div className="circle toggle-circle" onClick={() => setMenuOpen(!menuOpen)}>
+        <button
+          className="circle toggle-circle"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+          title="Menu"
+        >
           <FontAwesomeIcon icon={faList} size="2x" />
-        </div>
+        </button>
 
-        <div className={`sliding-icons ${menuOpen ? "open" : ""}`}>
+        <div className={`sliding-icons ${menuOpen ? "open" : ""}`} role="menu">
           {icons.map(({ key, icon }) => (
             <button
               key={key}
               className={`icon-container ${section === key ? "active" : ""}`}
-              onClick={() => {
-                setSection(key);   // seleziona la sezione
-                setMenuOpen(false); // chiude il menu
-              }}
+              onClick={() => onIconClick(key)}
+              aria-pressed={section === key}
             >
               <FontAwesomeIcon icon={icon} size="2x" />
             </button>
@@ -44,19 +49,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Monitor circolare a destra */}
-      <div className="main-circle-container">
-        <MonitorWidget
-          value={monitorValue}
-          size={200}
-          strokeWidth={12}
-          color="#00ffcc"
-          backgroundColor="#10233d"
-        />
-      </div>
-
-      {/* Contenuto centrale */}
-      <div className="central-content">
+      {/* central content (no "clicked" text) */}
+      <div className="central-content" role="main">
         <img src="/tarsazure.png" alt="TARS Logo" className="logo" />
       </div>
     </div>

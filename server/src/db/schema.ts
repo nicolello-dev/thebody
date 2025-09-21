@@ -1,9 +1,15 @@
 import { int, sqliteTable, text, real } from "drizzle-orm/sqlite-core";
 
-export const usersTable = sqliteTable("users", {
+export const playersTable = sqliteTable("players", {
   id: int().primaryKey({ autoIncrement: true }),
   name: text().notNull(),
   password: text().notNull(),
+  hunger: int().notNull().default(100),
+  thirst: int().notNull().default(100),
+  oxygen: int().notNull().default(100),
+  sleep: int().notNull().default(100),
+  biofeedback: int().notNull().default(100),
+  temperature: int().notNull().default(20),
 });
 
 export const typesTable = sqliteTable("types", {

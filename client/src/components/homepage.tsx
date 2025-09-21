@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBox, faDatabase, faHammer, faMap, faUser, faList } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBox,
+  faDatabase,
+  faHammer,
+  faMap,
+  faUser,
+  faList,
+} from "@fortawesome/free-solid-svg-icons";
 import "./homepage.css";
+import { useNavigate } from "react-router";
 
 type SectionKey = "inventario" | "database" | "crafting" | "mappa" | "utente";
 
@@ -9,17 +17,20 @@ export default function HomePage() {
   const [section, setSection] = useState<SectionKey | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const icons: { key: SectionKey; icon: any }[] = [
-    { key: "inventario", icon: faBox },
-    { key: "database", icon: faDatabase },
-    { key: "crafting", icon: faHammer },
-    { key: "mappa", icon: faMap },
-    { key: "utente", icon: faUser },
+  const navigate = useNavigate();
+
+  const icons: { key: SectionKey; icon: any; href: string }[] = [
+    { key: "inventario", icon: faBox, href: "inventory" },
+    { key: "database", icon: faDatabase, href: "database" },
+    { key: "crafting", icon: faHammer, href: "crafting" },
+    { key: "mappa", icon: faMap, href: "map" },
+    { key: "utente", icon: faUser, href: "user" },
   ];
 
   const onIconClick = (key: SectionKey) => {
     setSection(key);
     setMenuOpen(false); // retract menu immediately after selection
+    navigate(icons.find((i) => i.key == key)?.href!);
   };
 
   return (

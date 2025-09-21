@@ -20,3 +20,13 @@ html, body, #root {
   background: url('/bg.png') no-repeat center center fixed;
   background: transparent !important;
 }
+
+/* Imposta il cursore globale */
+body, html {
+  cursor: url("/cursor.png"), auto;
+}
+
+/* Sovrascrivi i cursori “pointer” su pulsanti, link e icone */
+button, a, input, select, textarea {
+  cursor: url("/cursor.png"), auto !important;
+}

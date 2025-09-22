@@ -3,6 +3,14 @@ import React, { useMemo } from "react";
 import ScreenRouter from "./screenrouter";
 import "./homepage.css";
 
+const cardImages = [
+  { key: "inventario", src: "/selectioncardinventory.png" },
+  { key: "database", src: "/selectioncarddatabase.png" },
+  { key: "crafting", src: "/selectioncardcrafting.png" },
+  { key: "mappa", src: "/selectioncardmap.png" },
+  { key: "utente", src: "/selectioncarduser.png" },
+];
+
 type SectionKey = "inventario" | "database" | "crafting" | "mappa" | "utente";
 
 interface HomePageProps {
@@ -31,6 +39,24 @@ export default function HomePage({ circleCenterX }: HomePageProps) {
 
       {/* Menu a tendina */}
       <ScreenRouter activeSection={section} setActiveSection={setSection} />
+
+      {/* Schede centrali */}
+      <div className="selection-overlay">
+        <div className="row top">
+          {cardImages.slice(0, 3).map(card => (
+            <div key={card.key} className="card">
+              <img src={card.src} alt={card.key} className="card-bg" />
+            </div>
+          ))}
+        </div>
+        <div className="row bottom">
+          {cardImages.slice(3).map(card => (
+            <div key={card.key} className="card">
+              <img src={card.src} alt={card.key} className="card-bg" />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Contenuto centrale */}
       <div className="central-content" role="main">

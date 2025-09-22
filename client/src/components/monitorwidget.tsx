@@ -131,7 +131,6 @@ export default function MonitorWidget({
         height={size * 1.5}
         preserveAspectRatio="xMinYMin meet"
         style={{ pointerEvents: "none" }}
-        opacity={0.7}
       />
 
       {/* main ring */}

@@ -23,6 +23,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "@fastify/websocket": "^11.2.0",
     "@libsql/client": "^0.15.15",
     "dotenv": "^17.2.2",

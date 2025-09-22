@@ -7,6 +7,7 @@ import {
   faCircleCheck,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
+import { useUser } from "../hooks/useUser";
 
 interface MonitorWidgetProps {
   healthValue?: number; // 0..1
@@ -24,11 +25,6 @@ interface MonitorWidgetProps {
 }
 
 export default function MonitorWidget({
-  healthValue = 0.65,
-  hungerValue = 0.5,
-  thirstValue = 0.7,
-  oxygenValue = 0.8,
-  sleepValue = 0.6,
   condition = "ok",
   size = 200,
   strokeWidth = 10,
@@ -38,6 +34,12 @@ export default function MonitorWidget({
   onCenterChange,
 }: MonitorWidgetProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const user = useUser();
+  const healthValue = user?.biofeedback! / 100;
+  const hungerValue = user?.hunger! / 100;
+  const thirstValue = user?.thirst! / 100;
+  const oxygenValue = user?.oxygen! / 100;
+  const sleepValue = user?.sleep! / 100;
 
   // geometry
   const cx = size / 2;
@@ -112,6 +114,8 @@ export default function MonitorWidget({
       window.removeEventListener("resize", onResize);
     };
   }, [cx, size, onCenterChange]);
+
+  if(!user) return;
 
   return (
     <svg

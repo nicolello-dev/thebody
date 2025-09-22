@@ -1,4 +1,4 @@
-import type * as WebSocket from "ws";
+import * as WebSocket from "ws";
 
 export class WebsocketManager {
   private sockets: Map<string, WebSocket.WebSocket>;
@@ -25,7 +25,7 @@ export class WebsocketManager {
   }
 
   sendToAll(data: Buffer) {
-    this.sockets.forEach((ws) => {
+    this.sockets.forEach((ws, _key, _map) => {
       ws.send(data);
     });
   }

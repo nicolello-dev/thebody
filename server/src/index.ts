@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import fastifyWebsocket from "@fastify/websocket";
 import { WebsocketManager } from "./ws/handler";
 import { db } from "./db";
@@ -10,6 +11,9 @@ const fastify = Fastify({
 });
 
 fastify.register(fastifyWebsocket);
+fastify.register(cors, {
+  origin: true,
+});
 
 fastify.get("/", function (request, reply) {
   reply.send({ hello: "world" });
@@ -17,44 +21,46 @@ fastify.get("/", function (request, reply) {
 
 const wsManager = new WebsocketManager();
 
-fastify.get("/ws", { websocket: true }, (socket, req) => {
-  if (typeof req.query !== "string") {
-    throw new Error("Request query malformed");
-  }
-  const query = new URLSearchParams(req.query as string);
+fastify.register(async function (fastify) {
+  fastify.get("/ws", { websocket: true }, (connection, req) => {
+    const url = new URL(req.url, "http://localhost");
+    const name = url.searchParams.get("name");
+    if (!name) {
+      throw new Error("No name");
+    }
+    wsManager.add(name, connection);
+    connection.send(JSON.stringify("Hello!"));
+  });
 
-  if (!query.get("name")) {
-    throw new Error("Name required!");
-  }
+  fastify.get("/user", async (req, res) => {
+    const username = req.query["name"];
 
-  wsManager.add(query.get("name"), socket);
-});
+    console.log("Username: ", username);
 
-fastify.get("/user", async (req, res) => {
-  const username = req.query["name"];
+    if (!username) {
+      res.code(400).send();
+      return;
+    }
 
-  console.log("Username: ", username);
+    const user = await db
+      .select()
+      .from(playersTable)
+      .where(eq(playersTable.name, username));
 
-  if (!username) {
-    res.code(400).send();
-    return;
-  }
+    if (user.length === 0) {
+      fastify.log.debug("User doesn't exist, creating user " + username);
+      await db.insert(playersTable).values({
+        name: username,
+      });
+    }
 
-  const user = await db
-    .select()
-    .from(playersTable)
-    .where(eq(playersTable.name, username));
-
-  if (user.length === 0) {
-    fastify.log.debug("User doesn't exist, creating user " + username);
-    await db.insert(playersTable).values({
-      name: username,
-    });
-  }
-
-  return (
-    await db.select().from(playersTable).where(eq(playersTable.name, username))
-  )[0];
+    return (
+      await db
+        .select()
+        .from(playersTable)
+        .where(eq(playersTable.name, username))
+    )[0];
+  });
 });
 
 fastify.listen({ port: 3000 }, function (err, address) {
@@ -66,4 +72,4 @@ fastify.listen({ port: 3000 }, function (err, address) {
 
 setInterval(() => {
   wsManager.sendToAll(Buffer.from("update"));
-});
+}, 200);

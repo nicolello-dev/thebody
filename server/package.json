@@ -6,16 +6,18 @@
   "author": "",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "dotenv node dist/index.js | tee logs/$(date -Iseconds).log",
-    "test": "jest"
+    "build": "npm run clean && tsc && node esbuild.config.js --watch",
+    "start": "dotenv -e .env -- node dist/index.cjs | tee ~/.thebody/logs/$(date -Iseconds).log",
+    "test": "jest",
+    "clean": "rm -rf ./dist ~/.thebody"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.5.1",
+    "@types/node": "^24.5.2",
     "@types/ws": "^8.18.1",
     "dotenv-cli": "^10.0.0",
     "drizzle-kit": "^0.31.4",
+    "esbuild": "^0.25.10",
     "jest": "^30.1.3",
     "ts-jest": "^29.4.3",
     "typescript": "^5.9.2"

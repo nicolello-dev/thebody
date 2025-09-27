@@ -1,23 +1,23 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Routes, Route } from "react-router-dom";
-import HomePage from "./components/homepage";
-import MonitorWidget from "./components/monitorwidget";
-import ScreenRouter from "./components/screenrouter";
-import Inventory from "./routes/inventory";
-import Database from "./routes/database";
-import Crafting from "./routes/crafting";
-import MapPage from "./routes/map";
-import User from "./routes/user";
+import React, { useEffect, useRef, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './components/homepage';
+import MonitorWidget from './components/monitorwidget';
+import ScreenRouter from './components/screenrouter';
+import Inventory from './routes/inventory';
+import Database from './routes/database';
+import Crafting from './routes/crafting';
+import MapPage from './routes/map';
+import User from './routes/user';
 
 // nuove pagine collegate alle icone del Database
-import Flora from "./routes/flora";
-import Fauna from "./routes/fauna";
-import Recipes from "./routes/recipes";
-import Dossier from "./routes/dossier";
+import Flora from './routes/flora';
+import Fauna from './routes/fauna';
+import Recipes from './routes/recipes';
+import Dossier from './routes/dossier';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
-import "./components/homepage.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExpand, faCompress } from '@fortawesome/free-solid-svg-icons';
+import './components/homepage.css';
 
 export default function App() {
   // valori globali condivisi
@@ -58,7 +58,7 @@ export default function App() {
     const transDelta = Math.max(0.2, (max - min) * 0.05);
 
     const id = window.setInterval(() => {
-      setTemperature((prev) => {
+      setTemperature(prev => {
         if (transitioningRef.current) {
           let step = transDelta * (target > prev ? 1 : -1);
           let next = prev + step;
@@ -97,42 +97,53 @@ export default function App() {
         await document.exitFullscreen();
       }
     } catch (err) {
-      console.error("Fullscreen error:", err);
+      console.error('Fullscreen error:', err);
     }
   };
 
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
   }, []);
 
   // state attivo per il menu (può mostrare active icon)
   const [activeSection, setActiveSection] = useState<
-    "inventario" | "database" | "crafting" | "mappa" | "utente" | null
+    'inventario' | 'database' | 'crafting' | 'mappa' | 'utente' | null
   >(null);
 
   return (
     <div
       ref={containerRef}
       style={{
-        width: "100vw",
-        height: "100vh",
-        position: "relative",
-        overflow: "hidden",
+        width: '100vw',
+        height: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* selectbg clip (si aggiorna quando MonitorWidget chiama onCenterChange) */}
       <div
-        className="select-overlay-clip"
-        style={{ width: circleCenterX ? `${circleCenterX}px` : "50vw", zIndex: 100 }}
+        className='select-overlay-clip'
+        style={{
+          width: circleCenterX ? `${circleCenterX}px` : '50vw',
+          zIndex: 100,
+        }}
         aria-hidden
       >
-        <img src="/selectbg.png" alt="Select Background" className="select-overlay" />
+        <img
+          src='/selectbg.png'
+          alt='Select Background'
+          className='select-overlay'
+        />
       </div>
 
       {/* MonitorWidget - unico, fisso */}
-      <div className="monitor-widget-fixed" aria-hidden={false} style={{ zIndex: 2500 }}>
+      <div
+        className='monitor-widget-fixed'
+        aria-hidden={false}
+        style={{ zIndex: 2500 }}
+      >
         <MonitorWidget
           healthValue={healthValue}
           hungerValue={hungerValue}
@@ -140,22 +151,25 @@ export default function App() {
           temperature={temperature}
           size={200}
           strokeWidth={12}
-          color="#dfffff"
-          backgroundColor="#10233d"
+          color='#dfffff'
+          backgroundColor='#10233d'
           onCenterChange={(x: number) => setCircleCenterX(x)}
         />
       </div>
 
       {/* ScreenRouter (toggle + icons) */}
       <div style={{ zIndex: 3000 }}>
-        <ScreenRouter activeSection={activeSection as any} setActiveSection={(k) => setActiveSection(k)} />
+        <ScreenRouter
+          activeSection={activeSection as any}
+          setActiveSection={k => setActiveSection(k)}
+        />
       </div>
 
       {/* Fullscreen button */}
       <button
         onClick={toggleFullscreen}
-        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-        className="fullscreen-toggle"
+        aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        className='fullscreen-toggle'
         style={{ zIndex: 4000 }}
       >
         <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} />
@@ -164,15 +178,15 @@ export default function App() {
       {/* Climatic quick buttons */}
       <div
         style={{
-          position: "fixed",
+          position: 'fixed',
           bottom: 72,
           right: 12,
           zIndex: 4000,
-          display: "flex",
+          display: 'flex',
           gap: 6,
         }}
       >
-        {([-2, -1, 0, 1, 2] as const).map((c) => (
+        {([-2, -1, 0, 1, 2] as const).map(c => (
           <button
             key={c}
             onClick={() => {
@@ -180,12 +194,13 @@ export default function App() {
               setClimate(c);
             }}
             style={{
-              padding: "6px 8px",
+              padding: '6px 8px',
               borderRadius: 6,
-              background: c === climate ? "rgba(255,255,255,0.12)" : "transparent",
-              color: "white",
-              border: "1px solid rgba(255,255,255,0.12)",
-              cursor: "pointer",
+              background:
+                c === climate ? 'rgba(255,255,255,0.12)' : 'transparent',
+              color: 'white',
+              border: '1px solid rgba(255,255,255,0.12)',
+              cursor: 'pointer',
             }}
           >
             {c}
@@ -195,10 +210,10 @@ export default function App() {
 
       {/* Router */}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/inventory" element={<Inventory />} />
+        <Route path='/' element={<HomePage />} />
+        <Route path='/inventory' element={<Inventory />} />
         <Route
-          path="/database"
+          path='/database'
           element={
             <Database
               healthValue={healthValue}
@@ -210,15 +225,15 @@ export default function App() {
             />
           }
         />
-        <Route path="/crafting" element={<Crafting />} />
-        <Route path="/map" element={<MapPage />} />
-        <Route path="/user" element={<User />} />
+        <Route path='/crafting' element={<Crafting />} />
+        <Route path='/map' element={<MapPage />} />
+        <Route path='/user' element={<User />} />
 
         {/* nuove route per icone database */}
-        <Route path="/flora" element={<Flora />} />
-        <Route path="/fauna" element={<Fauna />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/dossier" element={<Dossier />} />
+        <Route path='/flora' element={<Flora />} />
+        <Route path='/fauna' element={<Fauna />} />
+        <Route path='/recipes' element={<Recipes />} />
+        <Route path='/dossier' element={<Dossier />} />
       </Routes>
     </div>
   );

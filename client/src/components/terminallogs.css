@@ -4,7 +4,7 @@
   top: 10%;
   width: 320px;
   height: 80vh;
-  background-color: rgba(0,0,0,0.85);
+  background-color: rgba(0, 0, 0, 0.85);
   color: #33ff33;
   font-family: 'Courier New', monospace;
   font-size: 14px;
@@ -12,12 +12,12 @@
   padding: 12px;
   border-radius: 6px;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0,255,0,0.3);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
   z-index: 5000;
 }
 
 .terminal-line::before {
-  content: ">";
+  content: '>';
   margin-right: 6px;
   color: #33ff33;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export type User = {
   name: string;
@@ -13,34 +13,34 @@ export type User = {
 export function useUser(): User {
   const [user, setUser] = useState<User | null>(null);
 
-  const BACKEND_IP = "localhost";
-  const BACKEND_PORT = "3000";
+  const BACKEND_IP = 'localhost';
+  const BACKEND_PORT = '3000';
 
-  const name = "test";
+  const name = 'test';
 
   async function updateUserData() {
     try {
       const userData = await fetch(
-        `http://${BACKEND_IP}:${BACKEND_PORT}/user?name=${name}`
-      ).then((res) => res.json());
+        `http://${BACKEND_IP}:${BACKEND_PORT}/user?name=${name}`,
+      ).then(res => res.json());
 
       setUser(userData);
     } catch (err) {
-      console.error("Errore nel fetch user:", err);
+      console.error('Errore nel fetch user:', err);
     }
   }
 
   useEffect(() => {
     updateUserData();
     const ws = new WebSocket(
-      `ws://${BACKEND_IP}:${BACKEND_PORT}/ws?name=${name}`
+      `ws://${BACKEND_IP}:${BACKEND_PORT}/ws?name=${name}`,
     );
 
-    ws.addEventListener("open", () => {
-      console.log("Connected to websocket!");
+    ws.addEventListener('open', () => {
+      console.log('Connected to websocket!');
     });
 
-    ws.addEventListener("message", updateUserData);
+    ws.addEventListener('message', updateUserData);
 
     return () => {
       if (!ws.CLOSED) ws.close();
@@ -49,7 +49,7 @@ export function useUser(): User {
 
   // fallback fasullo (debug) se user è null
   const fakeUser: User = {
-    name: "debug-user",
+    name: 'debug-user',
     hunger: 50,
     thirst: 40,
     oxygen: 90,

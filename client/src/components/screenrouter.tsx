@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBox,
   faDatabase,
@@ -7,10 +7,15 @@ import {
   faMap,
   faUser,
   faList,
-} from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+} from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
-export type SectionKey = "inventario" | "database" | "crafting" | "mappa" | "utente";
+export type SectionKey =
+  | 'inventario'
+  | 'database'
+  | 'crafting'
+  | 'mappa'
+  | 'utente';
 
 interface IconConfig {
   key: SectionKey;
@@ -19,11 +24,11 @@ interface IconConfig {
 }
 
 const icons: IconConfig[] = [
-  { key: "inventario", icon: faBox, href: "/inventory" },
-  { key: "database", icon: faDatabase, href: "/database" },
-  { key: "crafting", icon: faHammer, href: "/crafting" },
-  { key: "mappa", icon: faMap, href: "/map" },
-  { key: "utente", icon: faUser, href: "/user" },
+  { key: 'inventario', icon: faBox, href: '/inventory' },
+  { key: 'database', icon: faDatabase, href: '/database' },
+  { key: 'crafting', icon: faHammer, href: '/crafting' },
+  { key: 'mappa', icon: faMap, href: '/map' },
+  { key: 'utente', icon: faUser, href: '/user' },
 ];
 
 const ScreenRouter: React.FC<{
@@ -36,46 +41,49 @@ const ScreenRouter: React.FC<{
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setMenuOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-const handleIconClick = (key: SectionKey) => {
-  setActiveSection(key);
-  setMenuOpen(false);
+  const handleIconClick = (key: SectionKey) => {
+    setActiveSection(key);
+    setMenuOpen(false);
 
-  const link = icons.find((i) => i.key === key)?.href;
-  if (link) {
-    navigate(link, { replace: false }); // forza la navigazione
-  }
-};
+    const link = icons.find(i => i.key === key)?.href;
+    if (link) {
+      navigate(link, { replace: false }); // forza la navigazione
+    }
+  };
 
   return (
-    <div className="toggle-container" ref={containerRef}>
+    <div className='toggle-container' ref={containerRef}>
       <button
-        className="circle toggle-circle"
+        className='circle toggle-circle'
         aria-expanded={menuOpen}
-        onClick={() => setMenuOpen((v) => !v)}
-        title="Menu"
+        onClick={() => setMenuOpen(v => !v)}
+        title='Menu'
       >
-        <span className="inner">
-          <FontAwesomeIcon icon={faList} size="2x" />
+        <span className='inner'>
+          <FontAwesomeIcon icon={faList} size='2x' />
         </span>
       </button>
 
-      <div className={`sliding-icons ${menuOpen ? "open" : ""}`} role="menu">
+      <div className={`sliding-icons ${menuOpen ? 'open' : ''}`} role='menu'>
         {icons.map(({ key, icon }) => (
           <button
             key={key}
-            className={`icon-container ${activeSection === key ? "active" : ""}`}
+            className={`icon-container ${activeSection === key ? 'active' : ''}`}
             onClick={() => handleIconClick(key)}
             aria-pressed={activeSection === key}
           >
-            <FontAwesomeIcon icon={icon} size="2x" />
+            <FontAwesomeIcon icon={icon} size='2x' />
           </button>
         ))}
       </div>

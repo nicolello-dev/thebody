@@ -1,18 +1,20 @@
-@import url("https://fonts.cdnfonts.com/css/liberation-sans");
-@import url("https://fonts.cdnfonts.com/css/liberation-serif");
-@import url("https://fonts.cdnfonts.com/css/liberation-mono");
+@import url('https://fonts.cdnfonts.com/css/liberation-sans');
+@import url('https://fonts.cdnfonts.com/css/liberation-serif');
+@import url('https://fonts.cdnfonts.com/css/liberation-mono');
 @layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 @theme {
-  --font-sans: "Liberation Sans", sans-serif;
-  --font-serif: "Liberation Serif", serif;
-  --font-mono: "Liberation Mono", monospace;
+  --font-sans: 'Liberation Sans', sans-serif;
+  --font-serif: 'Liberation Serif', serif;
+  --font-mono: 'Liberation Mono', monospace;
   --color-milu-bg-400: #61a6ab;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -23,12 +25,16 @@ html, body, #root {
 
 /* Scrollbar Webkit */
 ::-webkit-scrollbar {
-  cursor: url("/cursor.png") 0 0, auto !important;
+  cursor:
+    url('/cursor.png') 0 0,
+    auto !important;
 }
 
 ::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-track {
-  cursor: url("/cursor.png") 0 0, auto !important;
+  cursor:
+    url('/cursor.png') 0 0,
+    auto !important;
 }
 
 /* Firefox */
@@ -36,7 +42,6 @@ html, body, #root {
   scrollbar-width: thin;
   scrollbar-color: #254362 #051024;
 }
-
 
 /* Contenitore principale */
 .homepage-container {
@@ -101,7 +106,7 @@ html, body, #root {
   transition: transform 0.18s ease; /* si anima tutto il blocco */
 }
 .circle.toggle-circle::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background-image: url('/hexbg.png');
@@ -135,7 +140,9 @@ html, body, #root {
   opacity: 0;
   transform: translateY(-6px);
   pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2,0.9,0.3,1);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 .sliding-icons.open {
   opacity: 1;
@@ -155,7 +162,9 @@ html, body, #root {
   align-items: center;
   width: 46px;
   height: 46px;
-  transition: transform 0.18s cubic-bezier(0.2,0.9,0.3,1), color 0.18s;
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1),
+    color 0.18s;
   position: relative;
   border-radius: 50%;
   overflow: visible;
@@ -164,7 +173,6 @@ html, body, #root {
   color: #143f5d;
   transform: scale(1.08);
 }
-
 
 /* Monitor widget */
 .monitor-widget-fixed {
@@ -200,7 +208,8 @@ html, body, #root {
 .logo {
   width: 820px;
   height: auto;
-  filter: brightness(0) saturate(100%) invert(62%) sepia(87%) saturate(3000%) hue-rotate(170deg) brightness(100%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(62%) sepia(87%) saturate(3000%)
+    hue-rotate(170deg) brightness(100%) contrast(100%);
   opacity: 0.03;
 }
 
@@ -209,12 +218,14 @@ button {
   font: inherit;
   padding: 6px 8px;
   border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
   color: white;
   cursor: pointer;
 }
-button:hover { filter: brightness(1.1); }
+button:hover {
+  filter: brightness(1.1);
+}
 
 /* fullscreen button */
 .fullscreen-toggle {
@@ -228,9 +239,9 @@ button:hover { filter: brightness(1.1); }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   color: white;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
 }
 
@@ -260,7 +271,9 @@ button:hover { filter: brightness(1.1); }
   justify-content: center;
   pointer-events: auto;
   cursor: pointer;
-  transition: transform 0.25s ease, filter 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
 }
 .selection-overlay .card:hover {
   transform: scale(1.05) translateY(-4px);

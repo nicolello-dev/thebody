@@ -10,7 +10,7 @@ export type User = {
   temperature: number;
 };
 
-export function useUser(): User | null {
+export function useUser(): User {
   const [user, setUser] = useState<User | null>(null);
 
   const BACKEND_IP = "localhost";
@@ -19,11 +19,15 @@ export function useUser(): User | null {
   const name = "test";
 
   async function updateUserData() {
-    const userData = await fetch(
-      `http://${BACKEND_IP}:${BACKEND_PORT}/user?name=${name}`
-    ).then((res) => res.json());
+    try {
+      const userData = await fetch(
+        `http://${BACKEND_IP}:${BACKEND_PORT}/user?name=${name}`
+      ).then((res) => res.json());
 
-    setUser(userData);
+      setUser(userData);
+    } catch (err) {
+      console.error("Errore nel fetch user:", err);
+    }
   }
 
   useEffect(() => {
@@ -43,5 +47,16 @@ export function useUser(): User | null {
     };
   }, []);
 
-  return user;
+  // fallback fasullo (debug) se user è null
+  const fakeUser: User = {
+    name: "debug-user",
+    hunger: 50,
+    thirst: 40,
+    oxygen: 90,
+    sleep: 70,
+    biofeedback: 65,
+    temperature: 22,
+  };
+
+  return user ?? fakeUser;
 }

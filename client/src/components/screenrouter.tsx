@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBox,
@@ -8,9 +8,9 @@ import {
   faUser,
   faList,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
-type SectionKey = "inventario" | "database" | "crafting" | "mappa" | "utente";
+export type SectionKey = "inventario" | "database" | "crafting" | "mappa" | "utente";
 
 interface IconConfig {
   key: SectionKey;
@@ -19,22 +19,21 @@ interface IconConfig {
 }
 
 const icons: IconConfig[] = [
-  { key: "inventario", icon: faBox, href: "inventory" },
-  { key: "database", icon: faDatabase, href: "database" },
-  { key: "crafting", icon: faHammer, href: "crafting" },
-  { key: "mappa", icon: faMap, href: "map" },
-  { key: "utente", icon: faUser, href: "user" },
+  { key: "inventario", icon: faBox, href: "/inventory" },
+  { key: "database", icon: faDatabase, href: "/database" },
+  { key: "crafting", icon: faHammer, href: "/crafting" },
+  { key: "mappa", icon: faMap, href: "/map" },
+  { key: "utente", icon: faUser, href: "/user" },
 ];
 
 const ScreenRouter: React.FC<{
   activeSection: SectionKey | null;
-  setActiveSection: (key: SectionKey) => void;
+  setActiveSection: (key: SectionKey | null) => void;
 }> = ({ activeSection, setActiveSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
-  // Click fuori per chiudere menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -45,13 +44,15 @@ const ScreenRouter: React.FC<{
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleIconClick = (key: SectionKey) => {
-    if (key === activeSection) return; // blocco click doppio
-    setActiveSection(key);
-    setMenuOpen(false);
-    const link = icons.find((i) => i.key === key)?.href;
-    if (link) navigate(link);
-  };
+const handleIconClick = (key: SectionKey) => {
+  setActiveSection(key);
+  setMenuOpen(false);
+
+  const link = icons.find((i) => i.key === key)?.href;
+  if (link) {
+    navigate(link, { replace: false }); // forza la navigazione
+  }
+};
 
   return (
     <div className="toggle-container" ref={containerRef}>
@@ -61,7 +62,9 @@ const ScreenRouter: React.FC<{
         onClick={() => setMenuOpen((v) => !v)}
         title="Menu"
       >
-        <FontAwesomeIcon icon={faList} size="2x" />
+        <span className="inner">
+          <FontAwesomeIcon icon={faList} size="2x" />
+        </span>
       </button>
 
       <div className={`sliding-icons ${menuOpen ? "open" : ""}`} role="menu">

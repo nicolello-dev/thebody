@@ -1,0 +1,581 @@
+/* Offsets configurabili */
+:root {
+  /* Offset orizzontale della griglia/overlay (prima era 280px) */
+  --fauna-grid-left: 280px;
+  /* Shift orizzontale contenuti della nuova pagina (0 = centrato) */
+  --fauna-content-shift-x: 320px;
+}
+/* Pagina principale */
+.fauna-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: url('/bg.png') no-repeat center center;
+  background-attachment: fixed;
+  background-size: cover;
+  overflow: hidden;
+}
+
+/* griglia */
+.fauna-grid {
+  position: absolute;
+  top: 110px;
+  left: var(--fauna-grid-left);
+  opacity: 0.5;
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+  z-index: 1;
+  max-width: 58.7%;
+  transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out;
+}
+
+/* Subtitle GENOMA: si estende dal bordo sinistro della scrollbar fino al bordo destro del blocco fisico */
+.genome-subtitle {
+  margin-top: 16px;
+}
+.genome-subtitle .subtitle-wrapper {
+  position: relative;
+  display: block;
+  /* 491 (colonna sx) + 32 (gap) + 702 (stats) + 32 (gap) + 10 (divider) - 23 (margine divider) */
+  width: calc(491px + 32px + 702px + 32px + 10px - 23px);
+}
+.genome-subtitle .subtitle-wrapper img {
+  width: 100%;
+  height: 36px;
+  object-fit: fill;
+  display: block;
+}
+.genome-subtitle .subtitle-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 100%;
+  white-space: nowrap;
+  text-align: center;
+  color: #dfffff;
+  font-family: 'varino', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 18.6px;
+}
+
+/* Sezione GENOMA: riga con 4 slot (sx) + descrizione (dx) */
+.genome-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px; /* come le colonne principali */
+  margin-top: 10px; /* stessa distanza dal subtitle di uno slot */
+}
+.genome-left {
+  display: flex;
+  flex-direction: column;
+  width: 491px;
+  min-width: 491px;
+  max-width: 491px;
+  gap: 10px;
+}
+.genome-right {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+}
+/* Stack verticale: gene image sopra, poi genomedetect, poi reduce */
+.genome-right-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.genome-detect-wrap {
+  position: relative;
+  display: inline-block;
+}
+.genome-detect-wrap .genome-detect-inline {
+  display: block;
+  position: relative;
+  z-index: 0;
+}
+.genome-detect-wrap .genome-gene-img {
+  position: absolute;
+  top: 50px; bottom: 0; left: 50px; right: 0;
+  margin: 0;
+  max-width: 100%;
+  max-height: 100%;
+  z-index: 1;
+}
+.genome-detect-wrap .genome-reduce-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+  padding-left: 440px;
+  pointer-events: none;
+  z-index: 2;
+}
+.genome-detect-wrap .genome-reduce-overlay .fauna-reduce {
+  pointer-events: auto;
+}
+.genome-detect-wrap .genome-info-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 25px; /* valori molto più vicini */
+  padding-top:78px; /* alza/abbassa entrambi insieme */
+  z-index: 3;
+  padding-right: 345px; /* sposta entrambi a sx */
+}
+.genome-detect-wrap .genome-info {
+  font-family: 'varino', sans-serif;
+  font-size: 30px;
+  letter-spacing: 2px;
+  color: #dfffff;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(13,29,50,0.6);
+  padding: 0 6px; /* niente offset verticale qui: usa padding-top del container */
+}
+/* microspostamenti individuali opzionali: */
+/* se servono microspostamenti individuali, aggiungere margin-left/right qui */
+.genome-gene-img {
+  display: block;
+  max-width: 491px;
+  height: auto;
+  object-fit: contain;
+}
+.genome-reduce {
+  margin-top: 6px;
+}
+/* Divider verticale della sezione genome-right: allineato allo slot "Nome" e alto quanto la skin */
+.genome-right .genome-divider {
+  width: 10px;
+  min-width: 10px;
+  background: #0d1d32;
+  border-radius: 0;
+  align-self: stretch; /* estendilo per tutta l'altezza del contenitore destro */
+  margin-left: -23px;
+  margin-right: -23px;
+}
+/* Spazio sotto il sottotitolo GENOMA per i 4 slot: gestito dal margine di .genome-row */
+
+.genome-description-container {
+  position: relative;
+  width: 491px; /* stessa larghezza degli slot */
+  min-width: 491px;
+  max-width: 491px;
+}
+.genome-description-bg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.genome-description-text {
+  position: absolute;
+  top: 23px;
+  left: 23px;
+  right: 23px;
+  bottom: 23px;
+  overflow-y: auto; /* stessa scrollbar della descrizione esistente */
+  color: #dfffff;
+  font-size: 16px;
+  line-height: 1.4;
+  z-index: 1; /* garantisce che il testo sia sopra il bg */
+}
+
+/* Immagine bg-genomedetect affianco alla sezione, sotto "Genoma" */
+.genome-detect-inline {
+  display: block;
+  height: auto;
+  max-height: 278px;
+  object-fit: contain;
+}
+
+.fauna-grid-overlay {
+  position: absolute;
+  top: 110px;
+  left: var(--fauna-grid-left);
+  pointer-events: none;
+  z-index: 2;
+  max-width: 58.7%;
+  transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out;
+  will-change: opacity, transform, clip-path, filter;
+}
+
+@keyframes holoPrint {
+  0% { opacity: 0; filter: brightness(2) hue-rotate(190deg) saturate(2); clip-path: inset(0 100% 0 0); transform: translateY(6px) scale(0.995);}
+  28% { opacity: 0.7; filter: brightness(1.6) hue-rotate(160deg) saturate(1.6); clip-path: inset(0 40% 0 0); transform: translateY(-4px) scale(1.02);}
+  62% { opacity: 0.95; filter: brightness(1.12) hue-rotate(130deg) saturate(1.12); clip-path: inset(0 6% 0 0); transform: translateY(0) scale(1);}
+  100% { opacity: 0.5; filter: brightness(1) hue-rotate(0deg) saturate(1); clip-path: inset(0 0 0 0); transform: translateY(0) scale(1);}
+}
+.fauna-grid-overlay.holo { animation: holoPrint 680ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards; }
+
+/* container vecchia pagina */
+.fauna-container {
+  position: absolute;
+  top: 150px;
+  right: 40px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out;
+}
+
+/* fadeup animazioni */
+@keyframes fadeUpShort {
+  from { opacity: 0; transform: translateY(8px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.fauna-title,
+.fauna-slot,
+.fauna-description-container,
+.fauna-subtitle,
+.fauna-expand { animation: fadeUpShort 280ms ease-out forwards; }
+
+/* titolo */
+.fauna-title { margin-bottom: 10px; }
+.title-wrapper { position: relative; display: block; width: fit-content; }
+.title-text { position: absolute; top: 50%; left: 10px; transform: translateY(-50%); color: #dfffff; font-family: 'Eurostile', sans-serif; }
+.title-text h1 { margin: 0; font-size: 30px; letter-spacing: 3px; text-transform: uppercase; padding-left: 14px; }
+
+/* slot generici */
+.fauna-slots { display: flex; flex-direction: column; }
+.fauna-slot { position: relative; display: inline-block; width: auto; min-width: 0; margin-bottom: 5px; }
+.fauna-slot img.slot-bg { display: block; width: auto; height: auto; max-width: none; }
+.slot-label, .slot-value {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-family: 'Eurostile', sans-serif; font-size: 18.6px; letter-spacing: 3px; text-transform: uppercase; color: #99afc6;
+}
+.slot-label { left: 23px; font-weight: normal; }
+.slot-value { right: 23px; font-weight: bold; transform: translateY(-41.3%); }
+
+/* descrizione */
+.fauna-description-container { position: relative; width: 100%; margin-top: 10px; }
+.fauna-description-text { position: absolute; top: 23px; left: 23px; right: 23px; bottom: 23px; overflow-y: auto; color: #dfffff; font-size: 16px; line-height: 1.4; }
+
+/* subtitle */
+.fauna-subtitle { margin-top: 10px; margin-bottom: 10px;}
+.subtitle-wrapper { position: relative; display: inline-block }
+.subtitle-wrapper img {  display: block;  width: auto; height: auto;  max-width: none; }
+.subtitle-text { position: absolute; top: 50%; left: 50%; width: 100%;transform: translate(-50%, -60%); white-space: nowrap; text-align: center; color: #dfffff; font-family: 'varino', sans-serif; text-transform: uppercase; letter-spacing: 3px; font-size: 18.6px; }
+
+/* pulsanti */
+.fauna-expand, .fauna-reduce {
+  position: relative; margin-top: 20px; cursor: pointer; display: inline-block;
+}
+.expand-wrapper, .reduce-wrapper { position: relative; transition: transform 0.18s ease, filter 0.18s ease; }
+.fauna-expand:hover .expand-wrapper, .fauna-reduce:hover .reduce-wrapper { transform: scale(1.05); filter: brightness(1.2); }
+.expand-text, .reduce-text { position: absolute; top: 60%; left: 40px; transform: translateY(-50%); color: #dfffff; font-family: 'Eurostile', sans-serif; font-size: 22px; text-transform: uppercase; letter-spacing: 3px; }
+
+/* animazioni */
+.move-up, .move-down { transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out; }
+.move-up { transform: translateY(-100%); opacity: 0; }
+.move-down { transform: translateY(100%); opacity: 0; }
+
+/* nuova pagina */
+.new-page {
+  position: absolute; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  animation: slideInFromBottom 1.2s ease forwards;
+  z-index: 4;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding-top: 40px; box-sizing: border-box;
+}
+.new-page-content {
+  max-width: 480px; width: 90%; color: #dfffff;
+  display: flex; flex-direction: column; height: 100%; position: relative;
+  /* Permette di spostare orizzontalmente tutta la colonna nuova */
+  transform: translateX(var(--fauna-content-shift-x));
+}
+@keyframes slideInFromBottom { from { transform: translateY(100%); opacity: 0;} to { transform: translateY(0); opacity: 1;} }
+@keyframes slideOutToBottom { from { transform: translateY(0); opacity: 1;} to { transform: translateY(100%); opacity: 0;} }
+.new-page.slide-out { animation: slideOutToBottom 1s ease forwards; }
+
+/* area scrollabile item: fine 100px prima del fondo */
+.fauna-items-scroll {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 6px;
+  margin-bottom: 100px;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* spazio tra gli item */
+}
+.fauna-item-slot {
+  display: flex; /* oppure block */
+  position: relative;
+  width: auto;
+  min-width: 0;
+  margin-bottom: 0; /* usa gap invece di margin */
+}
+.fauna-item-slot img.item-bg { display: block; width: auto; height: auto; max-width: none; }
+.item-number { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 22px; color: #fff; opacity: 0.12; font-weight: 700; }
+.fauna-item-slot .item-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 100px; height: 100px; object-fit: contain;
+}
+.fauna-item-slot .item-name {
+  position: absolute; left: 180px; right: 23px; top: 50%; transform: translateY(-50%);
+  /* Permetti a capo e centratura orizzontale del testo */
+  white-space: normal;
+  font-weight: bold;
+  overflow-wrap: anywhere; /* spezza parole lunghe se necessario */
+  hyphens: auto;
+  text-align: center;
+  line-height: 1.1;
+  /* niente ellissi: vogliamo adattare il testo su più righe */
+  overflow: hidden;
+  color: #dfffff; font-family: 'Eurostile', sans-serif; font-size: 24px; text-transform: uppercase; letter-spacing: 3px;
+}
+
+/* pulsante reduce fisso: allineato a expand */
+.fixed-reduce { 
+  position: absolute; top: calc(150px + 20px); /* stessa posizione del pulsante expand */
+  right: 40px; 
+}
+
+.new-page-content {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+}
+@media (max-width: 900px) {
+  .new-page-content {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+/* --- Nuova impaginazione colonne e divisore --- */
+
+/* Wrapper colonne nuova pagina */
+.fauna-columns-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  /* Offset orizzontale globale della nuova pagina */
+  transform: translateX(var(--fauna-content-shift-x));
+}
+
+/* Colonna sinistra: larghezza adattata ai background */
+.fauna-col-left {
+  width: 491px;
+  min-width: 491px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+}
+
+/* Colonna destra */
+.fauna-col-right {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Riga destra: stats + divisore aggiuntivo a destra */
+.fauna-right-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+/* Contenitore sottotitolo + pannello: la larghezza è dettata dall'immagine */
+.stats-block {
+  width: 702px; /* larghezza nativa di bg-physicaltraits */
+}
+.stats-block .fauna-subtitle {
+  width: 702px;
+  min-width: 702px;
+  max-width: 702px;
+}
+.stats-block .subtitle-wrapper { display: block; width: 100%; }
+.stats-block .subtitle-wrapper img {
+  width: 702px;
+  height: 36px; /* altezza originale dello slot subtitle */
+  object-fit: fill; /* deforma orizzontalmente, non proporzionale */
+}
+
+/* GIF del genoma: stessa larghezza del subtitle */
+.fauna-col-right .genome-gif {
+  display: block;
+  width: 491px;
+  max-width: 491px;
+  height: auto;
+}
+
+/* Pannello caratteristiche fisiche */
+.traits-panel {
+  position: relative;
+}
+.traits-panel .traits-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.traits-panel .traits-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 100px;
+  padding: 60px 20px;
+  box-sizing: border-box;
+}
+.traits-grid {
+  display: grid;
+  gap: 83px 70px;
+}
+.traits-grid-sizes {
+  grid-template-columns: repeat(2, 1fr); /* 3 colonne */
+  grid-auto-rows: minmax(34px, auto);
+}
+.traits-grid-resists {
+  grid-template-columns: repeat(2, 1fr); /* 2 colonne */
+  grid-auto-rows: minmax(34px, auto);
+}
+.trait-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+  background: none;
+  border: none;
+}
+.trait-label, .trait-value {
+  font-family: 'varino', sans-serif;
+  font-size: 30px;
+  letter-spacing: 1.5px;
+  color: #dfffff;
+  text-transform: uppercase;
+}
+.trait-label { opacity: 0.8; }
+.trait-value { font-weight: 700; }
+
+/* Rettangolo divisore verticale */
+.fauna-divider {
+  width: 10px;
+  min-width: 10px;
+  background: #0d1d32;
+  border-radius: 0;
+  height: calc(50vh + 110px); /* dal top al fondo meno 100px e padding-top */
+  align-self: flex-start;
+  margin-left: -23px;
+  margin-right: -23px;
+  margin-top: 10px;
+}
+
+/* Colonna fissa di bg-dna.gif dal top 100px al bottom 200px */
+.dna-stack {
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  right: 40px; /* allineata con i pulsanti a destra */
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* senza distacco */
+  z-index: 3; /* sotto overlay griglia ma sopra sfondo */
+  pointer-events: none;
+  overflow: hidden; /* taglia l'eccesso quando c'è sovrapposizione */
+}
+.dna-stack .dna-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  flex: 0 0 auto; /* non si ridimensiona; usa l'altezza naturale per la tassellazione */
+}
+
+/* Subtitle, slot, item: larghezza piena */
+.fauna-subtitle,
+.fauna-slots,
+.fauna-items-scroll,
+.fauna-slot,
+.fauna-item-slot {
+  width: 491px;
+  min-width: 491px;
+  max-width: 491px;
+}
+
+/* Scrollbar verticale con overflow a 100px dal fondo */
+.fauna-items-scroll {
+  overflow-y: auto;
+  background: rgba(16,35,61,0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 0;
+  padding-right: 8px;
+  overflow-x: hidden;
+  height: 50vh; /* metà pagina */
+  flex: 0 0 auto; /* assicura che usi l'altezza e non si estenda a tutta la colonna */
+}
+
+/* Gli item hanno la stessa larghezza del subtitle, senza deformazione */
+.fauna-item-slot img.item-bg {
+  width: 491px;
+  height: auto;
+}
+
+/* Responsive: nascondi rettangolo su mobile */
+@media (max-width: 900px) {
+  .fauna-columns-wrapper {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .fauna-col-left, .fauna-col-right {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+  .genome-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .genome-left,
+  .genome-description-container {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  .genome-description-bg {
+    width: 100% !important;  /* su mobile: usa larghezza piena */
+    height: auto !important; /* e altezza automatica */
+  }
+  .fauna-divider {
+    display: none;
+  }
+  .fauna-subtitle,
+  .fauna-slots,
+  .fauna-items-scroll,
+  .fauna-slot,
+  .fauna-item-slot {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  .fauna-col-right .genome-gif {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .traits-panel, .traits-panel .traits-image { width: 100% !important; }
+}

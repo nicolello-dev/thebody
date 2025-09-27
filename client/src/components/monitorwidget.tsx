@@ -1,4 +1,3 @@
-// src/components/monitorwidget.tsx
 import React, { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -7,6 +6,7 @@ import {
   faCircleCheck,
   faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
+import { useUser } from "../hooks/useUser";
 
 interface MonitorWidgetProps {
   healthValue?: number; // 0..1
@@ -24,22 +24,38 @@ interface MonitorWidgetProps {
 }
 
 export default function MonitorWidget({
-  healthValue = 0.65,
-  hungerValue = 0.5,
-  thirstValue = 0.7,
-  oxygenValue = 0.8,
-  sleepValue = 0.6,
   condition = "ok",
   size = 200,
   strokeWidth = 10,
   color = "#dfffff",
   backgroundColor = "#333",
-  temperature = 20,
+  temperature,
   onCenterChange,
+  healthValue: propHealth,
+  hungerValue: propHunger,
+  thirstValue: propThirst,
+  oxygenValue: propOxygen,
+  sleepValue: propSleep,
 }: MonitorWidgetProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const user = useUser?.(); // if hook exists
+  // prefer props, otherwise fallback to user values (if available), otherwise defaults
+  const healthValue = typeof propHealth === "number"
+    ? propHealth
+    : user?.biofeedback ? user.biofeedback / 100 : 0.6;
+  const hungerValue = typeof propHunger === "number"
+    ? propHunger
+    : user?.hunger ? user.hunger / 100 : 0.5;
+  const thirstValue = typeof propThirst === "number"
+    ? propThirst
+    : user?.thirst ? user.thirst / 100 : 0.5;
+  const oxygenValue = typeof propOxygen === "number"
+    ? propOxygen
+    : user?.oxygen ? user.oxygen / 100 : 0.9;
+  const sleepValue = typeof propSleep === "number"
+    ? propSleep
+    : user?.sleep ? user.sleep / 100 : 0.8;
 
-  // geometry
   const cx = size / 2;
   const cy = size / 2;
   const radius = Math.max((size - strokeWidth) / 2, 1);
@@ -49,7 +65,7 @@ export default function MonitorWidget({
   // temperature cursor
   const minTemp = -5;
   const maxTemp = 45;
-  const clampedTemp = Math.min(Math.max(temperature ?? 20, minTemp), maxTemp);
+  const clampedTemp = Math.min(Math.max((typeof temperature === "number" ? temperature : (user?.temperature ?? 20)), minTemp), maxTemp);
   const cursorValue = (clampedTemp - minTemp) / (maxTemp - minTemp);
   const cursorAngleDeg = -180 + 180 * cursorValue;
 
@@ -284,6 +300,7 @@ export default function MonitorWidget({
           </foreignObject>
         </g>
       </g>
+
     </svg>
   );
 }

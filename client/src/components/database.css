@@ -1,0 +1,93 @@
+/* =========================
+   Contenitore Database
+   ========================= */
+.database-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  background: url('/bg.png') no-repeat center center;
+  background-size: cover;
+  color: white;
+  font-family: 'eurostile', sans-serif;
+}
+
+/* =========================
+   Overlay centrale (GIF)
+   ========================= */
+.database-gif-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3000;
+  pointer-events: none; /* importante per far passare i click */
+}
+
+.database-gif {
+  max-width: 1700px;
+  height: auto;
+  display: block;
+}
+
+/* =========================
+   Icone centrali sopra GIF
+   ========================= */
+.database-icons-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4000; /* sopra GIF ma sotto ScreenRouter se necessario */
+  pointer-events: none; /* container stesso non intercetta click */
+}
+
+.database-icon-button {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2,0.9,0.3,1);
+  pointer-events: auto; /* solo i pulsanti intercettano click */
+}
+
+/* Stato visibile */
+.database-icon-button.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Immagine icona */
+.database-icon-button .icon-img {
+  width: 196px;
+  height: auto;
+  transition: transform 0.25s cubic-bezier(0.2,0.9,0.3,1);
+}
+
+/* Label testo */
+.database-icon-button .icon-label {
+  margin-top: 8px;
+  color: #10233d;
+  font-size: 24px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Hover stile Lora: gonfiaggio + deformazione */
+.database-icon-button:hover .icon-img {
+  transform: scale(1.12);
+  filter: brightness(1.1);
+}
+
+/* Posizione quadrato */
+.database-icon-button.top-left { top: 25%; left: 35%; }
+.database-icon-button.top-right { top: 25%; right: 35%; }
+.database-icon-button.bottom-left { bottom: 25%; left: 35%; }
+.database-icon-button.bottom-right { bottom: 25%; right: 35%; }

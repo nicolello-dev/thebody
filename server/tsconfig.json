@@ -1,8 +1,12 @@
 {
-    "include": ["src"],
-    "exclude": ["*.spec.*"],
-    "compilerOptions": {
-        "outDir": "dist",
-        "skipLibCheck": true
-    },
+  "include": ["src"],
+  "exclude": ["*.spec.*"],
+  "compilerOptions": {
+    "noEmit": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  }
 }

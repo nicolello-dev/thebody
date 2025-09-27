@@ -24,9 +24,11 @@ export default function HomePage() {
       <div className="selection-overlay">
         <div className="row top">
           {cardImages.slice(0, 3).map((card) => (
-            <div key={card.key} className="card" onClick={() => navigate(card.href)}>
-              <img src={card.src} alt={card.key} className="card-bg" />
-            </div>
+            <a href={card.href}>
+              <div key={card.key} className="card">
+                <img src={card.src} alt={card.key} className="card-bg" />
+              </div>
+            </a>
           ))}
         </div>
         <div className="row bottom">
@@ -34,6 +36,11 @@ export default function HomePage() {
             <div key={card.key} className="card" onClick={() => navigate(card.href)}>
               <img src={card.src} alt={card.key} className="card-bg" />
             </div>
+            <a href={card.href}>
+              <div key={card.key} className="card">
+                <img src={card.src} alt={card.key} className="card-bg" />
+              </div>
+            </a>
           ))}
         </div>
       </div>

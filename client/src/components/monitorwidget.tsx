@@ -129,6 +129,8 @@ export default function MonitorWidget({
     };
   }, [cx, size, onCenterChange]);
 
+  if(!user) return;
+
   return (
     <svg
       ref={svgRef}

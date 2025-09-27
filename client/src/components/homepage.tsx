@@ -33,14 +33,16 @@ export default function HomePage() {
         </div>
         <div className="row bottom">
           {cardImages.slice(3).map((card) => (
-            <div key={card.key} className="card" onClick={() => navigate(card.href)}>
-              <img src={card.src} alt={card.key} className="card-bg" />
-            </div>
-            <a href={card.href}>
-              <div key={card.key} className="card">
+            <>
+              <div key={card.key} className="card" onClick={() => navigate(card.href)}>
                 <img src={card.src} alt={card.key} className="card-bg" />
               </div>
-            </a>
+              <a href={card.href}>
+                <div className="card">
+                  <img src={card.src} alt={card.key} className="card-bg" />
+                </div>
+              </a>
+            </>
           ))}
         </div>
       </div>

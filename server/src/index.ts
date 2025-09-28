@@ -3,8 +3,9 @@ import cors from "@fastify/cors";
 import fastifyWebsocket from "@fastify/websocket";
 import { WebsocketManager } from "./ws/handler";
 import { db } from "./db";
-import { playersTable } from "./db/schema";
+import { playersTable, baseItemsTable } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { getDinosaurById } from "./dao/dinosaur";
 
 const fastify = Fastify({
   logger: true,
@@ -13,10 +14,6 @@ const fastify = Fastify({
 fastify.register(fastifyWebsocket);
 fastify.register(cors, {
   origin: true,
-});
-
-fastify.get("/", function (request, reply) {
-  reply.send({ hello: "world" });
 });
 
 const wsManager = new WebsocketManager();
@@ -30,6 +27,23 @@ fastify.register(async function (fastify) {
     }
     wsManager.add(name, connection);
     connection.send(JSON.stringify("Hello!"));
+  });
+
+  fastify.get("/dinosaur", async (req, res) => {
+    const { id } = req.query as { id: string };
+    console.log("Requested dinosaur with id: ", id);
+    return await getDinosaurById(Number(id));
+  });
+
+  fastify.get("/baseitem", async (req, res) => {
+    const { id } = req.query as { id: string };
+    console.log("Requested base item with id: ", id);
+    const baseItem = await db
+      .select()
+      .from(baseItemsTable)
+      .where(eq(baseItemsTable.id, Number(id)));
+
+    return baseItem[0];
   });
 
   fastify.get("/user", async (req, res) => {

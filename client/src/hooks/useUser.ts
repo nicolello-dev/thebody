@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BACKEND_IP, BACKEND_PORT } from '../common';
 
 export type User = {
   name: string;
@@ -12,9 +13,6 @@ export type User = {
 
 export function useUser(): User {
   const [user, setUser] = useState<User | null>(null);
-
-  const BACKEND_IP = 'localhost';
-  const BACKEND_PORT = '3000';
 
   const name = 'test';
 

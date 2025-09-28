@@ -1,32 +1,33 @@
 .terminal-container {
-  position: fixed;
-  right: 2%;
-  top: 10%;
-  width: 320px;
-  height: 80vh;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: #33ff33;
+  position: absolute;
+  right: 28px;
+  top: 24px;
+  width: 420px;
+  max-height: 46vh;
+  background: rgba(13, 29, 51, 0.92); /* #0d1d33 */
+  color: #677a8f;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.4;
-  padding: 12px;
-  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  padding: 12px 14px;
+  border: 1px solid rgba(223, 255, 255, 0.22);
+  border-radius: 0;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-  z-index: 5000;
+  z-index: 4;
+  backdrop-filter: blur(2px);
 }
 
 .terminal-line::before {
   content: '>';
   margin-right: 6px;
-  color: #33ff33;
+  color: #dfffff;
 }
 
 .cursor {
   display: inline-block;
-  width: 8px;
+  width: 6px;
   animation: blink 1s step-start infinite;
-  color: #33ff33;
+  color: #677a8f;
 }
 
 @keyframes blink {

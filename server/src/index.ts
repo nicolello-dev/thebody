@@ -83,7 +83,3 @@ fastify.listen({ port: 3000 }, function (err, address) {
     process.exit(1);
   }
 });
-
-setInterval(() => {
-  wsManager.sendToAll(Buffer.from("update"));
-}, 200);

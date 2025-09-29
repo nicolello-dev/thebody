@@ -2,12 +2,17 @@ import { int, sqliteTable, text, real } from "drizzle-orm/sqlite-core";
 
 export const playersTable = sqliteTable("players", {
   name: text().primaryKey(),
+  password: text().notNull().default("changeme"),
   hunger: int().notNull().default(100),
   thirst: int().notNull().default(100),
   oxygen: int().notNull().default(100),
   sleep: int().notNull().default(100),
   biofeedback: int().notNull().default(100),
   temperature: int().notNull().default(20),
+  /**
+   * JSON array of int[2], i.e. [[1, 1], [2, 3]]
+   */
+  unlockedAreas: text().notNull().default("[]"),
 });
 
 export const typesTable = sqliteTable("types", {

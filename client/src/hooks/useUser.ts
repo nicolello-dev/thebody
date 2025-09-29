@@ -9,6 +9,7 @@ export type User = {
   sleep: number;
   biofeedback: number;
   temperature: number;
+  unlockedAreas: Array<[number, number]>;
 };
 
 export function useUser(): User {
@@ -54,6 +55,7 @@ export function useUser(): User {
     sleep: 70,
     biofeedback: 65,
     temperature: 22,
+    unlockedAreas: [],
   };
 
   return user ?? fakeUser;

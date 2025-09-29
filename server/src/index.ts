@@ -56,24 +56,30 @@ fastify.register(async function (fastify) {
       return;
     }
 
-    const user = await db
+    let users = await db
       .select()
       .from(playersTable)
       .where(eq(playersTable.name, username));
 
-    if (user.length === 0) {
+    if (users.length === 0) {
       fastify.log.debug("User doesn't exist, creating user " + username);
       await db.insert(playersTable).values({
         name: username,
+        password: "changeme",
       });
-    }
 
-    return (
-      await db
+      users = await db
         .select()
         .from(playersTable)
-        .where(eq(playersTable.name, username))
-    )[0];
+        .where(eq(playersTable.name, username));
+    }
+
+    const user = users[0];
+
+    return {
+      ...user,
+      unlockedAreas: JSON.parse(user.unlockedAreas || "[]"),
+    };
   });
 });
 

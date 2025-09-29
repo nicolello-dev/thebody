@@ -1,6 +1,37 @@
 import { useEffect, useState } from 'react';
 import { BACKEND_IP, BACKEND_PORT } from '../common';
 
+export type BaseItem = {
+  id: number;
+  name: string;
+  type: string;
+  image: string;
+  description: string;
+  tier1Value: number;
+  tier1Cost: number;
+  tier2Value: number;
+  tier2Cost: number;
+  tier3Value: number;
+  tier3Cost: number;
+  isGluten: boolean;
+  isSugar: boolean;
+  isRedMeat: boolean;
+  isAlcohol: boolean;
+  isDrug: boolean;
+  dmgModifier: number;
+  inventoryHeight: number;
+  inventoryWidth: number;
+};
+
+export type Gene = {
+  id: number;
+  name: string;
+  image: string;
+  effect: string;
+  extractProbability: number;
+  combineProbability: number;
+};
+
 export type Fauna = {
   id: number;
   name: string;
@@ -9,12 +40,12 @@ export type Fauna = {
   family: string;
   genus: string;
   description: string;
-  resource1: number;
-  resource2: number;
-  resource3: number;
-  resource4: number;
-  resource5: number;
-  resource6: number;
+  resource1: BaseItem | null;
+  resource2: BaseItem | null;
+  resource3: BaseItem | null;
+  resource4: BaseItem | null;
+  resource5: BaseItem | null;
+  resource6: BaseItem | null;
   sociality: string;
   diet: string;
   habitat: string;
@@ -29,7 +60,8 @@ export type Fauna = {
   perfResistance: number;
   tempResistance: number;
   chimResistance: number;
-  geneId: number;
+  geneId: number | null;
+  gene: Gene | null;
   geneSource?: string;
   tamingDifficulty: number;
   image: string;
@@ -38,12 +70,72 @@ export type Fauna = {
   category: string;
 };
 
-export function useFauna(id: number): Fauna | null {
-  const [fauna, setFauna] = useState<Fauna | null>(null);
+const defaultFauna: Fauna = {
+  id: 0,
+  name: 'Tyrannosaurus-rex',
+  scientificName: 'Lucertola Re',
+  order: 'Saurischia',
+  family: 'Tirannosauride',
+  genus: 'Tyrannosaurus',
+  description: 'Descrizione a caso per il tirannosauro',
+  resource1: {
+    id: 0,
+    name: 'Carne rossa (cruda)',
+    type: 'Carne',
+    image: 'https://picsum.photos/200',
+    description: 'Carne rossa non cotta. Che ti aspettavi?',
+    tier1Value: 0,
+    tier1Cost: 0,
+    tier2Value: 0,
+    tier2Cost: 0,
+    tier3Value: 0,
+    tier3Cost: 0,
+    isGluten: false,
+    isSugar: false,
+    isRedMeat: true,
+    isAlcohol: false,
+    isDrug: false,
+    dmgModifier: 0,
+    inventoryHeight: 1,
+    inventoryWidth: 1,
+  },
+  resource2: null,
+  resource3: null,
+  resource4: null,
+  resource5: null,
+  resource6: null,
+  sociality: 'Solitaria',
+  diet: 'Preda viva',
+  habitat: 'Foreste / Pianure',
+  enemies: 'Nessuno (inventato)',
+  length: 12,
+  height: 5,
+  weight: 8,
+  walkingSpeed: 20,
+  swimmingSpeed: 0,
+  flyingSpeed: 0,
+  contResistance: 5,
+  perfResistance: 2,
+  tempResistance: 10,
+  chimResistance: 7,
+  geneId: null,
+  gene: null,
+  geneSource: 'Some gene source',
+  tamingDifficulty: 10,
+  image: '/tyrannosaurusrex.png',
+  footprint: 'idk man',
+  skinPattern: 'idk',
+  category: 'Carnivoro',
+};
 
-  fetch(`http://${BACKEND_IP}:${BACKEND_PORT}/fauna?id=${id.toString()}`)
-    .then(res => res.json())
-    .then(data => setFauna(data));
+export function useFauna(id: number): Fauna {
+  const [fauna, setFauna] = useState<Fauna>(defaultFauna);
+
+  useEffect(() => {
+    fetch(`http://${BACKEND_IP}:${BACKEND_PORT}/dinosaur?id=${id.toString()}`)
+      .then(res => res.json())
+      .then(data => setFauna(data));
+  }, [id]);
 
   return fauna;
 }

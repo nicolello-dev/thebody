@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '../components/homepage.css';
 import '../components/fauna.css';
+import { Fauna, useFauna } from '../hooks/useFauna';
+import { DinosaurSwitcher } from '../components/dinosaurSwitcher';
 
 /** Debug overlay image path (public/) */
 const OVERLAY = '/tyrannosaurusrex.png';
@@ -24,54 +26,9 @@ const slugifyFileName = (name: string) =>
     .replace(/[^a-z0-9]+/g, '-') // sequenze non alfanumeriche -> '-'
     .replace(/^-+|-+$/g, '');
 
-const faunaData = {
-  nome: 'Tyrannosaurus Rex',
-  slotPreDescrizione: [
-    { label: 'Significato', value: 'Lucertola Re' },
-    { label: 'Ordine', value: 'Saurischia' },
-    { label: 'Famiglia', value: 'Tirannosauridae' },
-    { label: 'Genere', value: 'Tyrannosaurus' },
-  ],
-  descrizione:
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  slotPostDescrizione: [
-    { label: 'Categoria', value: 'Carnivoro' },
-    { label: 'Dieta', value: 'Preda viva' },
-    { label: 'Attitudine', value: 'Aggressiva' },
-    { label: 'Socialità', value: 'Solitaria' },
-    { label: 'Habitat', value: 'Foreste / Pianure' },
-    { label: 'Addestrabilità', value: 'Alta' },
-  ],
-  resource1: { name: 'Carne rossa (cruda)' },
-  resource2: { name: 'Ossa' },
-  resource3: { name: 'Pelle' },
-  resource4: null,
-  resource5: null,
-  resource6: null,
-  // Statistiche fisiche e resistenze
-  weight: '8',
-  length: '12',
-  height: '5',
-  walkSpeed: '20',
-  swimSpeed: '—',
-  flySpeed: '—',
-  contResist: '5',
-  perfResist: '2',
-  tempResist: '10',
-  chimResist: '7',
-  // Genoma
-  sorgente: 'Fossile',
-  gene: {
-    nome: 'TRX-Alpha',
-    probabilitaEstrazione: '62%',
-    compatibilita: '45%',
-    image: '/genetest.png',
-    descrizione:
-      "Sequenza clonata dal campione principale. Stabilità elevata nelle prime fasi di incubazione; richiede cofattori minerali specifici per l'espressione completa. Tendenza a mutazioni puntiformi sotto stress termico prolungato.",
-  },
-};
-
-export default function Fauna() {
+export default function Page() {
+  const faunaId = new URLSearchParams(window.location.search).get('id');
+  const faunaData = useFauna(faunaId ? parseInt(faunaId, 10) : 0);
   const [isExpanding, setIsExpanding] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [isCollapsing, setIsCollapsing] = useState(false);
@@ -175,6 +132,8 @@ export default function Fauna() {
         alt='overlay hologram'
       />
 
+      <DinosaurSwitcher />
+
       {/* PAGINA VECCHIA */}
       {!showNew && (
         <div className={`fauna-container ${isExpanding ? 'move-up' : ''}`}>
@@ -182,21 +141,23 @@ export default function Fauna() {
             <div className='title-wrapper'>
               <img src='/bg-title.png' alt='title icon' />
               <div className='title-text'>
-                <h1>{faunaData.nome}</h1>
+                <h1>{faunaData.name}</h1>
               </div>
             </div>
           </div>
 
           <div className='fauna-slots'>
-            {faunaData.slotPreDescrizione.map((slot, idx) => (
-              <div className='fauna-slot' key={idx}>
-                <img src='/bg-slot.png' className='slot-bg' alt='slot bg' />
-                <span className='slot-label'>{slot.label.toUpperCase()}</span>
-                <span className='slot-value'>
-                  {String(slot.value).toUpperCase()}
-                </span>
-              </div>
-            ))}
+            {(['order', 'family', 'genus'] as Array<keyof Fauna>).map(
+              (slot, idx) => (
+                <div className='fauna-slot' key={idx}>
+                  <img src='/bg-slot.png' className='slot-bg' alt='slot bg' />
+                  <span className='slot-label'>{slot.toUpperCase()}</span>
+                  <span className='slot-value'>
+                    {String(faunaData[slot]).toUpperCase()}
+                  </span>
+                </div>
+              ),
+            )}
           </div>
 
           <div className='fauna-description-container'>
@@ -206,7 +167,7 @@ export default function Fauna() {
               alt='description bg'
             />
             <div className='fauna-description-text'>
-              {faunaData.descrizione}
+              {faunaData.description}
             </div>
           </div>
 
@@ -218,12 +179,20 @@ export default function Fauna() {
           </div>
 
           <div className='fauna-slots'>
-            {faunaData.slotPostDescrizione.map((slot, idx) => (
+            {(
+              [
+                'category',
+                'diet',
+                'sociality',
+                'habitat',
+                'tamingDifficulty',
+              ] as Array<keyof Fauna>
+            ).map((slot, idx) => (
               <div className='fauna-slot' key={idx}>
                 <img src='/bg-slot.png' className='slot-bg' alt='slot bg' />
-                <span className='slot-label'>{slot.label.toUpperCase()}</span>
+                <span className='slot-label'>{slot.toUpperCase()}</span>
                 <span className='slot-value'>
-                  {String(slot.value).toUpperCase()}
+                  {String(faunaData[slot]).toUpperCase()}
                 </span>
               </div>
             ))}
@@ -237,7 +206,7 @@ export default function Fauna() {
           >
             <div className='expand-wrapper'>
               <img src='/bg-expand.png' className='expand-bg' alt='expand bg' />
-              <div className='expand-text'>_{faunaData.nome}//</div>
+              <div className='expand-text'>_{faunaData.name}//</div>
             </div>
           </div>
         </div>
@@ -324,7 +293,7 @@ export default function Fauna() {
                       />
                       <span className='slot-label'>NOME</span>
                       <span className='slot-value'>
-                        {String(faunaData.gene?.nome ?? '—').toUpperCase()}
+                        {String(faunaData.gene?.name ?? '—').toUpperCase()}
                       </span>
                     </div>
                     <div className='fauna-slot'>
@@ -335,7 +304,7 @@ export default function Fauna() {
                       />
                       <span className='slot-label'>SORGENTE</span>
                       <span className='slot-value'>
-                        {String(faunaData.sorgente ?? '—').toUpperCase()}
+                        {String(faunaData.geneSource ?? '—').toUpperCase()}
                       </span>
                     </div>
                   </div>
@@ -350,7 +319,7 @@ export default function Fauna() {
                       alt='description bg'
                     />
                     <div className='genome-description-text'>
-                      {faunaData.gene?.descrizione || '—'}
+                      {faunaData.gene?.name || '—'}
                     </div>
                   </div>
                 </div>
@@ -377,12 +346,12 @@ export default function Fauna() {
                       <div className='genome-info-overlay' aria-hidden='false'>
                         <div className='genome-info genome-prob'>
                           {String(
-                            faunaData.gene?.probabilitaEstrazione ?? '—',
+                            faunaData.gene?.extractProbability ?? '—',
                           ).toUpperCase()}
                         </div>
                         <div className='genome-info genome-comp'>
                           {String(
-                            faunaData.gene?.compatibilita ?? '—',
+                            faunaData.gene?.combineProbability ?? '—',
                           ).toUpperCase()}
                         </div>
                       </div>
@@ -401,7 +370,7 @@ export default function Fauna() {
                               alt='reduce bg'
                             />
                             <div className='reduce-text'>
-                              _{faunaData.nome}//
+                              _{faunaData.name}//
                             </div>
                           </div>
                         </div>
@@ -439,9 +408,9 @@ export default function Fauna() {
                           { value: faunaData.weight },
                           { value: faunaData.length },
                           { value: faunaData.height },
-                          { value: faunaData.walkSpeed },
-                          { value: faunaData.swimSpeed },
-                          { value: faunaData.flySpeed },
+                          { value: faunaData.walkingSpeed },
+                          { value: faunaData.swimmingSpeed },
+                          { value: faunaData.flyingSpeed },
                         ].map((t, i) => (
                           <div key={i} className='trait-box'>
                             <span className='trait-value'>{t.value}</span>
@@ -451,10 +420,10 @@ export default function Fauna() {
                       {/* Griglia 2x2: resistenze */}
                       <div className='traits-grid traits-grid-resists'>
                         {[
-                          { value: faunaData.contResist },
-                          { value: faunaData.perfResist },
-                          { value: faunaData.tempResist },
-                          { value: faunaData.chimResist },
+                          { value: faunaData.contResistance },
+                          { value: faunaData.perfResistance },
+                          { value: faunaData.tempResistance },
+                          { value: faunaData.chimResistance },
                         ].map((t, i) => (
                           <div key={i} className='trait-box'>
                             <span className='trait-value'>{t.value}</span>

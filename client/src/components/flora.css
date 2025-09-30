@@ -1,0 +1,39 @@
+/* Isolamento regole per la pagina Flora, evitando collisioni con fauna.css */
+
+/* Variabili esposte per controllare dove termina la scrollbar */
+.flora-page {
+  --flora-container-top: 150px; /* deve combaciare con .fauna-container top */
+  --flora-scroll-bottom-offset: 220px; /* default, può essere sovrascritto inline dal componente */
+  padding-bottom: 40px; /* spazio extra visivo a fondo pagina */
+}
+
+/* Scrollbar: termina a distanza costante dal fondo e non eredita flex di fauna */
+/* Limita l'altezza del contenitore in funzione della viewport
+   così il suo contenuto non tocca il fondo pagina */
+.flora-page .fauna-container {
+  max-height: calc(100vh - var(--flora-container-top) - var(--flora-scroll-bottom-offset));
+  display: flex;
+  flex-direction: column;
+}
+
+/* La lista si espande nello spazio rimanente e non forza il fondo */
+.flora-page .fauna-items-scroll {
+  flex: 1 1 auto;
+  min-height: 0; /* fondamentale per permettere al flex child di scrollare */
+  height: auto;
+  max-height: none;
+  margin-bottom: 0;
+  margin-top: 5px; /* stesso gap degli slot */
+  overflow-y: auto;
+}
+
+/* Rendi costante la larghezza come in fauna ma senza side effects ulteriori */
+.flora-page .fauna-subtitle,
+.flora-page .fauna-slots,
+.flora-page .fauna-items-scroll,
+.flora-page .fauna-slot,
+.flora-page .fauna-item-slot {
+  width: 491px;
+  min-width: 491px;
+  max-width: 491px;
+}

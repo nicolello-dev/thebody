@@ -26,10 +26,12 @@
 }
 
 .database-gif {
-  max-width: 1700px;
+  max-width: 2100px;
+  width: 600px;
   height: auto;
   display: block;
 }
+
 
 /* =========================
    Icone centrali sopra GIF
@@ -80,14 +82,44 @@
   pointer-events: none;
 }
 
+/* Varianti di layout per etichetta per icone specifiche */
+/* Flora: etichetta sopra l'icona */
+.database-icon-button.flora { flex-direction: column; }
+.database-icon-button.flora .icon-label { order: -1; margin-top: 0; margin-bottom: 8px; }
+
+/* Fauna: etichetta a destra, centrata verticalmente rispetto al pulsante */
+.database-icon-button.fauna { flex-direction: row; align-items: center; }
+.database-icon-button.fauna .icon-label { order: 1; margin: 0 0 0 12px; text-align: left; }
+
+/* Dossier: resta default (label sotto) */
+
 /* Hover stile Lora: gonfiaggio + deformazione */
 .database-icon-button:hover .icon-img {
   transform: scale(1.12);
   filter: brightness(1.1);
 }
 
+/* Cambio colore del testo quando si è in hover sul pulsante */
+.database-icon-button:hover .icon-label {
+  color: #dfffff;
+}
+
 /* Posizione quadrato */
-.database-icon-button.top-left { top: 25%; left: 35%; }
-.database-icon-button.top-right { top: 25%; right: 35%; }
-.database-icon-button.bottom-left { bottom: 25%; left: 35%; }
-.database-icon-button.bottom-right { bottom: 25%; right: 35%; }
+.database-icon-button.top-left { top: 30%; left: 42%; }
+.database-icon-button.top-right { top: 41.5%; right: 32.25%; }
+.database-icon-button.bottom-right { bottom: 30%; left: 42%; }
+
+/* Header centrale in alto */
+.database-header {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 36px;
+  color: #10233d; /* stesso colore delle etichette icone */
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'eurostile', sans-serif;
+  pointer-events: none;
+  z-index: 3500;
+}

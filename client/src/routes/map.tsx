@@ -88,7 +88,9 @@ export default function Map() {
 
       {/* Terminal logs overlay sopra il topology container */}
       <div style={{ position: "absolute", top: 175, left: 0, right: 1100, zIndex: 4, pointerEvents: "none" }}>
-        <TerminalLogs />
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <TerminalLogs />
+        </div>
       </div>
 
       <div

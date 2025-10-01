@@ -28,7 +28,7 @@ const loopLogs: string[] = [
   "[STATUS] Frame 60 fps • latenza 4.2 ms",
 ];
 
-export default function TerminalLogs() {
+export default function TerminalLogs({ killzone }: { killzone?: boolean } = {}) {
   const totalStatic = staticLogs.length;
   const totalLoop = loopLogs.length;
   const [phase, setPhase] = useState<"static" | "loop">("static");
@@ -36,6 +36,32 @@ export default function TerminalLogs() {
   const [currentLine, setCurrentLine] = useState(0); // indice relativo alla fase
   const [currentChar, setCurrentChar] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [allowed, setAllowed] = useState(true);
+
+  // Killzone: evita di renderizzare se il contenitore cade entro 200px dai bordi
+  useEffect(() => {
+    if (!killzone) { setAllowed(true); return; }
+    const check = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const margin = 200;
+      const nearLeft = r.left < margin;
+      const nearTop = r.top < margin;
+      const nearRight = (window.innerWidth - r.right) < margin;
+      const nearBottom = (window.innerHeight - r.bottom) < margin;
+      setAllowed(!(nearLeft || nearTop || nearRight || nearBottom));
+    };
+    const id = requestAnimationFrame(check);
+    const onResize = () => requestAnimationFrame(check);
+    window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(id);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onResize);
+    };
+  }, [killzone]);
 
   useEffect(() => {
     // Sezione statica completata → inizializza sezione loop
@@ -95,6 +121,7 @@ export default function TerminalLogs() {
     return () => clearTimeout(charTimer);
   }, [currentChar, currentLine, phase, logs.length, totalStatic, totalLoop]);
 
+  if (!allowed) return null;
   return (
     <div className="terminal-container" ref={containerRef}>
       {logs.map((log, idx) => {

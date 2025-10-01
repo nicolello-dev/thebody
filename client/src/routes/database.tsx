@@ -76,8 +76,10 @@ export default function Database(props: DatabaseProps) {
         ))}
       </div>
 
-      {/* Terminal logs stile "scientifico" per la pagina Database */}
-      <DatabaseLogs />
+      {/* Terminal logs stile "scientifico" per la pagina Database (posizione legacy) */}
+      <div style={{ position: "fixed", top: 24, right: 28, zIndex: 4500 }}>
+        <DatabaseLogs />
+      </div>
 
       {/* Popups terminal-style effimeri attorno alle icone (non sovrapposti e senza bloccare input) */}
       <DatabasePopups

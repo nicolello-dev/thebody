@@ -129,7 +129,7 @@ export default function MonitorWidget({
     };
   }, [cx, size, onCenterChange]);
 
-  if(!user) return;
+  // Don't block rendering if user data is not available; fall back to props/defaults
 
   return (
     <svg

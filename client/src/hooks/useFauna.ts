@@ -128,14 +128,18 @@ const defaultFauna: Fauna = {
   category: 'Carnivoro',
 };
 
-export function useFauna(id: number): Fauna {
+export function useFauna() {
   const [fauna, setFauna] = useState<Fauna>(defaultFauna);
+  const [faunaId, setFaunaId] = useState<number>(0);
 
   useEffect(() => {
-    fetch(`http://${BACKEND_IP}:${BACKEND_PORT}/dinosaur?id=${id.toString()}`)
+    setFauna(defaultFauna);
+    fetch(
+      `http://${BACKEND_IP}:${BACKEND_PORT}/dinosaur?id=${faunaId.toString()}`,
+    )
       .then(res => res.json())
       .then(data => setFauna(data));
-  }, [id]);
+  }, [faunaId]);
 
-  return fauna;
+  return { fauna, faunaId, setFaunaId };
 }

@@ -27,8 +27,7 @@ const slugifyFileName = (name: string) =>
     .replace(/^-+|-+$/g, '');
 
 export default function Page() {
-  const faunaId = new URLSearchParams(window.location.search).get('id');
-  const faunaData = useFauna(faunaId ? parseInt(faunaId, 10) : 0);
+  const { fauna: faunaData, faunaId, setFaunaId } = useFauna();
   const [isExpanding, setIsExpanding] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [isCollapsing, setIsCollapsing] = useState(false);
@@ -132,7 +131,7 @@ export default function Page() {
         alt='overlay hologram'
       />
 
-      <DinosaurSwitcher />
+      <DinosaurSwitcher setFaunaId={setFaunaId} faunaId={faunaId} />
 
       {/* PAGINA VECCHIA */}
       {!showNew && (

@@ -4,7 +4,6 @@ import { OrbitControls, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { FaCloud, FaBorderAll } from 'react-icons/fa';
 import TerminalLogs from '../components/terminallogs';
-import { useUser } from '../hooks/useUser';
 
 // Debug: griglia di rivelazione della mappa (UV space)
 export const REVEAL_COLS = 16;
@@ -111,7 +110,9 @@ export default function Map() {
           pointerEvents: 'none',
         }}
       >
-        <TerminalLogs />
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <TerminalLogs />
+        </div>
       </div>
 
       <div
@@ -278,7 +279,6 @@ export default function Map() {
             <PlanetScene
               cloudsEnabled={cloudsEnabled}
               gridEnabled={gridEnabled}
-              unlockedAreas={user.unlockedAreas}
             />
           </Suspense>
 
@@ -292,11 +292,9 @@ export default function Map() {
 function PlanetScene({
   cloudsEnabled,
   gridEnabled,
-  unlockedAreas,
 }: {
   cloudsEnabled: boolean;
   gridEnabled: boolean;
-  unlockedAreas: Array<[number, number]>;
 }) {
   // carico texture del pianeta, delle nuvole e dei tile bloccati
   const [planetMap, cloudMap, lockedMap] = useTexture([
@@ -323,7 +321,6 @@ function PlanetScene({
       planetMap={planetMap}
       cloudMap={cloudMap}
       lockedMap={lockedMap}
-      unlockedAreas={unlockedAreas}
     />
   );
 }
@@ -334,14 +331,12 @@ function Planet({
   planetMap,
   cloudMap,
   lockedMap,
-  unlockedAreas,
 }: {
   cloudsEnabled: boolean;
   gridEnabled: boolean;
   planetMap: THREE.Texture;
   cloudMap: THREE.Texture;
   lockedMap: THREE.Texture;
-  unlockedAreas: Array<[number, number]>;
 }) {
   const planetRef = useRef<THREE.Mesh>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
@@ -359,7 +354,7 @@ function Planet({
       data[i * 4 + 3] = 255;
     }
     // Mark revealed cells
-    for (const [cx, cy] of unlockedAreas) {
+    for (const [cx, cy] of DEBUG_REVEALED_CELLS) {
       if (cx >= 0 && cx < w && cy >= 0 && cy < h) {
         const idx = cy * w + cx;
         data[idx * 4 + 0] = 255; // red channel marks reveal

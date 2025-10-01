@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../components/homepage.css';
 import '../components/database.css';
+import DatabaseLogs from '../components/databaselogs.tsx';
+import DatabasePopups from '../components/databasepopups.tsx';
 
 interface DatabaseProps {
   healthValue?: number;
@@ -27,26 +29,24 @@ export default function Database(props: DatabaseProps) {
       label: '_FLORA//',
       position: 'top-left',
       route: '/flora',
+      type: 'flora',
     },
     {
       src: '/fauna.png',
       label: '_FAUNA//',
       position: 'top-right',
       route: '/fauna',
-    },
-    {
-      src: '/recipes.png',
-      label: '_RICETTE//',
-      position: 'bottom-left',
-      route: '/recipes',
+      type: 'fauna',
     },
     {
       src: '/dossier.png',
       label: '_DOSSIER//',
       position: 'bottom-right',
       route: '/dossier',
+      type: 'dossier',
     },
-  ];
+  ] as const;
+  const btnRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
 
   return (
     <div className='homepage-container'>
@@ -54,6 +54,9 @@ export default function Database(props: DatabaseProps) {
       <div className='screen-router-container'>
         {/* se vuoi mantenere ScreenRouter lo rimetti qui */}
       </div>
+
+      {/* Header centrale in alto */}
+      <div className='database-header'>_SELEZIONA DIRECTORY//</div>
 
       {/* GIF centrale, non intercettabile dai click */}
       <div className='database-gif-container'>
@@ -64,14 +67,26 @@ export default function Database(props: DatabaseProps) {
         />
       </div>
 
+      {/* Seconda GIF overlay (screen blend, ruotata 90° a destra) */}
+      <div className='database-gif2-container' aria-hidden>
+        <img
+          src='/tensorflow.gif'
+          alt='Tensor Overlay'
+          className='database-gif2'
+        />
+      </div>
+
       {/* Icone pulsanti sopra la GIF */}
       <div className='database-icons-container'>
         {buttons.map(btn => (
           <button
             key={btn.label}
-            className={`database-icon-button ${btn.position} ${
+            className={`database-icon-button ${btn.position} ${btn.type} ${
               iconsVisible ? 'visible' : ''
             }`}
+            ref={el => {
+              btnRefs.current[btn.type] = el;
+            }}
             onClick={() => navigate(btn.route)}
             aria-label={`Vai a ${btn.label}`}
           >
@@ -80,6 +95,20 @@ export default function Database(props: DatabaseProps) {
           </button>
         ))}
       </div>
+
+      {/* Terminal logs stile "scientifico" per la pagina Database (posizione legacy) */}
+      <div style={{ position: 'fixed', top: 24, right: 28, zIndex: 4500 }}>
+        <DatabaseLogs />
+      </div>
+
+      {/* Popups terminal-style effimeri attorno alle icone (non sovrapposti e senza bloccare input) */}
+      <DatabasePopups
+        anchors={{
+          flora: btnRefs.current['flora'] || null,
+          fauna: btnRefs.current['fauna'] || null,
+          dossier: btnRefs.current['dossier'] || null,
+        }}
+      />
     </div>
   );
 }

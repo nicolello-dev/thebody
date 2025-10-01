@@ -44,32 +44,32 @@ export default function MonitorWidget({
     typeof propHealth === 'number'
       ? propHealth
       : user?.biofeedback
-        ? user.biofeedback / 100
-        : 0.6;
+      ? user.biofeedback / 100
+      : 0.6;
   const hungerValue =
     typeof propHunger === 'number'
       ? propHunger
       : user?.hunger
-        ? user.hunger / 100
-        : 0.5;
+      ? user.hunger / 100
+      : 0.5;
   const thirstValue =
     typeof propThirst === 'number'
       ? propThirst
       : user?.thirst
-        ? user.thirst / 100
-        : 0.5;
+      ? user.thirst / 100
+      : 0.5;
   const oxygenValue =
     typeof propOxygen === 'number'
       ? propOxygen
       : user?.oxygen
-        ? user.oxygen / 100
-        : 0.9;
+      ? user.oxygen / 100
+      : 0.9;
   const sleepValue =
     typeof propSleep === 'number'
       ? propSleep
       : user?.sleep
-        ? user.sleep / 100
-        : 0.8;
+      ? user.sleep / 100
+      : 0.8;
 
   const cx = size / 2;
   const cy = size / 2;
@@ -83,7 +83,7 @@ export default function MonitorWidget({
   const maxTemp = 45;
   const clampedTemp = Math.min(
     Math.max(
-      typeof temperature === 'number' ? temperature : (user?.temperature ?? 20),
+      typeof temperature === 'number' ? temperature : user?.temperature ?? 20,
       minTemp,
     ),
     maxTemp,
@@ -151,7 +151,7 @@ export default function MonitorWidget({
     };
   }, [cx, size, onCenterChange]);
 
-  if (!user) return;
+  // Don't block rendering if user data is not available; fall back to props/defaults
 
   return (
     <svg

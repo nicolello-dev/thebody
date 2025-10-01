@@ -38,6 +38,29 @@ const ScreenRouter: React.FC<{
   const [menuOpen, setMenuOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+
+  // simple auth reader from localStorage + listeners
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem('thebody.auth');
+        const parsed = raw ? JSON.parse(raw) : null;
+        setIsAuthed(!!(parsed && parsed.user));
+      } catch {
+        setIsAuthed(false);
+      }
+    };
+    read();
+    const onStorage = () => read();
+    const onAuthChanged = () => read();
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('thebody-auth-changed' as any, onAuthChanged);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('thebody-auth-changed' as any, onAuthChanged);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,13 +76,11 @@ const ScreenRouter: React.FC<{
   }, []);
 
   const handleIconClick = (key: SectionKey) => {
+    if (!isAuthed) return; // lock until login
     setActiveSection(key);
     setMenuOpen(false);
-
     const link = icons.find(i => i.key === key)?.href;
-    if (link) {
-      navigate(link, { replace: false }); // forza la navigazione
-    }
+    if (link) navigate(link, { replace: false });
   };
 
   return (
@@ -79,9 +100,21 @@ const ScreenRouter: React.FC<{
         {icons.map(({ key, icon }) => (
           <button
             key={key}
-            className={`icon-container ${activeSection === key ? 'active' : ''}`}
+            className={`icon-container ${
+              activeSection === key ? 'active' : ''
+            } ${!isAuthed ? 'disabled' : ''}`}
             onClick={() => handleIconClick(key)}
             aria-pressed={activeSection === key}
+            aria-disabled={!isAuthed}
+            style={
+              !isAuthed
+                ? {
+                    opacity: 0.6,
+                    filter: 'grayscale(20%)',
+                    cursor: 'not-allowed',
+                  }
+                : undefined
+            }
           >
             <FontAwesomeIcon icon={icon} size='2x' />
           </button>

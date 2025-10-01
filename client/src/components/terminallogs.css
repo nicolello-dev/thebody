@@ -1,9 +1,13 @@
 .terminal-container {
   position: absolute;
-  right: 28px;
-  top: 24px;
-  width: 420px;
-  max-height: 46vh;
+  top: var(--tl-top, 24px);
+  right: var(--tl-right, 28px);
+  left: var(--tl-left, auto);
+  bottom: var(--tl-bottom, auto);
+  box-sizing: border-box;
+  /* Clamp size to avoid overflow: keep at least 200px margins overall (safe-x/safe-y) */
+  width: min(420px, max(160px, calc(100vw - var(--safe-x, 400px))));
+  max-height: min(46vh, max(120px, calc(100vh - var(--safe-y, 400px))));
   background: rgba(13, 29, 51, 0.92); /* #0d1d33 */
   color: #677a8f;
   font-family: 'Courier New', monospace;

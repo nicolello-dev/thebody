@@ -117,7 +117,23 @@ export default function Inventory() {
     }),
     []
   );
-  const [inventories, setInventories] = useState<Record<InventoryKey, Item[]>>(initialInventories);
+  const INV_STORE_KEY = "thebody.inventories";
+  const loadFromStorage = (): Record<InventoryKey, Item[]> | null => {
+    try {
+      const raw = localStorage.getItem(INV_STORE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") return parsed as Record<InventoryKey, Item[]>;
+    } catch {}
+    return null;
+  };
+  const [inventories, setInventories] = useState<Record<InventoryKey, Item[]>>(() => loadFromStorage() ?? initialInventories);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(INV_STORE_KEY, JSON.stringify(inventories));
+    } catch {}
+  }, [inventories]);
 
   const [auxInv, setAuxInv] = useState<Exclude<InventoryKey, "zaino">>("cassa_a");
 

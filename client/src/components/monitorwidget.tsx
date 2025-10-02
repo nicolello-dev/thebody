@@ -6,7 +6,7 @@ import {
   faCircleCheck,
   faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '../context/user';
 
 interface MonitorWidgetProps {
   healthValue?: number; // 0..1
@@ -38,7 +38,7 @@ export default function MonitorWidget({
   sleepValue: propSleep,
 }: MonitorWidgetProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const user = useUser?.(); // if hook exists
+  const { user } = useUser();
   // prefer props, otherwise fallback to user values (if available), otherwise defaults
   const healthValue =
     typeof propHealth === 'number'

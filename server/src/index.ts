@@ -3,9 +3,14 @@ import cors from "@fastify/cors";
 import fastifyWebsocket from "@fastify/websocket";
 import { WebsocketManager } from "./ws/handler";
 import { db } from "./db";
-import { playersTable, baseItemsTable } from "./db/schema";
+import {
+  playersTable,
+  baseItemsTable,
+  externalStorageTable,
+} from "./db/schema";
 import { eq } from "drizzle-orm";
 import { getDinosaurById } from "./dao/dinosaur";
+import { getInventoriesForUser } from "./routes/inventories";
 
 const fastify = Fastify({
   logger: true,
@@ -14,6 +19,7 @@ const fastify = Fastify({
 fastify.register(fastifyWebsocket);
 fastify.register(cors, {
   origin: true,
+  methods: ["GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
 });
 
 const wsManager = new WebsocketManager();
@@ -27,6 +33,84 @@ fastify.register(async function (fastify) {
     }
     wsManager.add(name, connection);
     connection.send(JSON.stringify("Hello!"));
+  });
+
+  fastify.get("/auth", async (req, res) => {
+    const { name, password } = req.query as { name: string; password: string };
+    console.log("Auth request for user: ", name);
+    if (!name || !password) {
+      res.code(400).send();
+      return;
+    }
+
+    const users = await db
+      .select()
+      .from(playersTable)
+      .where(eq(playersTable.name, name));
+
+    if (users.length === 0 || users[0].password !== password) {
+      res.code(401).send();
+      return;
+    }
+
+    res.code(200).send();
+    return;
+  });
+
+  fastify.get("/inventories", async (req, res) => {
+    const username = req.query["name"];
+
+    console.log("Username: ", username);
+
+    if (!username) {
+      res.code(400).send();
+      return;
+    }
+
+    const inventories = await getInventoriesForUser(username as string);
+
+    res.send(JSON.stringify(inventories));
+  });
+
+  fastify.options("/inventories", async (req, res) => {
+    res.code(200).send();
+  });
+  fastify.patch("/inventories", async (req, res) => {
+    const { name } = req.query as { name: string };
+    const inventories = req.body as Record<string, any[]>;
+
+    console.log("Updating inventories for user: ", name, inventories);
+
+    if (!name || !inventories) {
+      res.code(400).send();
+      return;
+    }
+
+    const users = await db
+      .select()
+      .from(playersTable)
+      .where(eq(playersTable.name, name));
+
+    if (users.length === 0) {
+      res.code(404).send();
+      return;
+    }
+
+    await db
+      .update(playersTable)
+      .set({ inventory: JSON.stringify(inventories["user"] || []) })
+      .where(eq(playersTable.name, name));
+
+    delete inventories["user"];
+
+    for (const storageName of Object.keys(inventories)) {
+      await db
+        .update(externalStorageTable)
+        .set({ inventory: JSON.stringify(inventories[storageName] || []) })
+        .where(eq(externalStorageTable.label, storageName));
+    }
+
+    wsManager.sendToAll(Buffer.from("update"));
   });
 
   fastify.get("/dinosaur", async (req, res) => {
@@ -88,4 +172,8 @@ fastify.listen({ port: 3000 }, function (err, address) {
     fastify.log.error(err);
     process.exit(1);
   }
+});
+
+setTimeout(() => {
+  wsManager.sendToAll(Buffer.from("update"));
 });

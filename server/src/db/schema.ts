@@ -13,6 +13,17 @@ export const playersTable = sqliteTable("players", {
    * JSON array of int[2], i.e. [[1, 1], [2, 3]]
    */
   unlockedAreas: text().notNull().default("[]"),
+  inventory: text().notNull().default("[]"),
+});
+
+export const externalStorageTable = sqliteTable("externalStorage", {
+  id: int().primaryKey({ autoIncrement: true }),
+  label: text().notNull(),
+  cols: int().notNull(),
+  rows: int().notNull(),
+  icon: text().notNull(),
+  category: text().notNull(),
+  inventory: text().notNull().default("[]"),
 });
 
 export const typesTable = sqliteTable("types", {

@@ -1,9 +1,10 @@
-import React, { Suspense, useState, useRef, useMemo, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Suspense, useState, useRef, useMemo, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { FaCloud, FaBorderAll } from 'react-icons/fa';
 import TerminalLogs from '../components/terminallogs';
+import { useUser } from '../context/user';
 
 // Debug: griglia di rivelazione della mappa (UV space)
 export const REVEAL_COLS = 16;
@@ -20,7 +21,7 @@ export const CLOUD_UV_FLIP_X = true;
 export const CLOUD_UV_FLIP_Y = false;
 
 export default function Map() {
-  const user = useUser();
+  const { user } = useUser();
   const [cloudsEnabled, setCloudsEnabled] = useState(true);
   const [gridEnabled, setGridEnabled] = useState(true);
 
@@ -340,6 +341,7 @@ function Planet({
 }) {
   const planetRef = useRef<THREE.Mesh>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
+  const { user } = useUser();
 
   // Build reveal mask texture from debug cells
   const revealMask = useMemo(() => {
@@ -354,7 +356,7 @@ function Planet({
       data[i * 4 + 3] = 255;
     }
     // Mark revealed cells
-    for (const [cx, cy] of DEBUG_REVEALED_CELLS) {
+    for (const [cx, cy] of user?.unlockedAreas || []) {
       if (cx >= 0 && cx < w && cy >= 0 && cy < h) {
         const idx = cy * w + cx;
         data[idx * 4 + 0] = 255; // red channel marks reveal

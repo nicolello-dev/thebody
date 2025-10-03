@@ -18,10 +18,10 @@ export type OtherKey =
 
 export type ContainerKey = 'zaino' | 'grid5x5' | OtherKey;
 
-export type ItemKind = 'alimento' | 'indumento' | 'arma' | 'generico';
+export type ItemKind = 'alimento' | 'risorsa' | 'arma';
 export type DamageType = 'contundente' | 'chimico' | 'termico' | 'perforante';
 
-type BaseMeta = { description: string; tier: 1 | 2 | 3; kind: ItemKind };
+type BaseMeta = { description: string; kind: ItemKind; tier?: 1 | 2 | 3 };
 type FoodMeta = BaseMeta & {
   kind: 'alimento';
   isGluten?: boolean;
@@ -30,21 +30,17 @@ type FoodMeta = BaseMeta & {
   isVegetable?: boolean;
   isAlcohol?: boolean;
   isDrugs?: boolean;
-  consumption?: 'mangiare' | 'bere';
+  isFood?: boolean;
+  isDrink?: boolean;
   effectPercent?: number;
-};
-type ClothingMeta = BaseMeta & {
-  kind: 'indumento';
-  protezione?: number;
-  effect?: string;
 };
 type WeaponMeta = BaseMeta & {
   kind: 'arma';
   danno?: number;
-  munizioni?: number;
+  projectiles?: string;
   damageType?: DamageType;
 };
-type GenericMeta = BaseMeta & { kind: 'generico' };
+type ResourceMeta = BaseMeta & { kind: 'risorsa' };
 
 export type Item = {
   id: string;
@@ -55,7 +51,7 @@ export type Item = {
   y: number;
   w: number;
   h: number;
-} & (FoodMeta | ClothingMeta | WeaponMeta | GenericMeta);
+} & (FoodMeta | WeaponMeta | ResourceMeta);
 
 /** ------ Context shape ------ */
 type InventoryContextValue = {

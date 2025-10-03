@@ -39,11 +39,11 @@ export default function MonitorWidget({
   thirstValue: propThirst,
   oxygenValue: propOxygen,
   sleepValue: propSleep,
-  isRobot = false,
   energyValue: propEnergy,
 }: MonitorWidgetProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const { user } = useUser();
+  const isRobot = user.isRobot;
   // Debug health constants (used if not provided via props or user)
   const DBG_MAX_HEALTH = 15;
   const DBG_CURRENT_HEALTH = 10;

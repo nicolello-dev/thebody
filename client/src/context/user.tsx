@@ -19,6 +19,8 @@ export type User = {
   sleep: number;
   biofeedback: number;
   temperature: number;
+  isRobot: number;
+  energy: number;
   unlockedAreas: Array<[number, number]>;
   inventory: Array<any>;
 };
@@ -147,6 +149,8 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
         sleep: 70,
         biofeedback: 65,
         temperature: 22,
+        isRobot: 0,
+        energy: 80,
         inventory: [],
         unlockedAreas: [],
       }

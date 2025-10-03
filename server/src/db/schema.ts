@@ -9,6 +9,8 @@ export const playersTable = sqliteTable("players", {
   sleep: int().notNull().default(100),
   biofeedback: int().notNull().default(100),
   temperature: int().notNull().default(20),
+  isRobot: int().notNull().default(0),
+  energy: int().notNull().default(100),
   /**
    * JSON array of int[2], i.e. [[1, 1], [2, 3]]
    */

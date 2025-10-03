@@ -12,8 +12,8 @@ import {
 import { BACKEND_IP, BACKEND_PORT } from '../common';
 import { useUser } from '../context/user';
 
-type ItemKind = 'alimento' | 'indumento' | 'arma' | 'generico';
-type BaseMeta = { description: string; tier: 1 | 2 | 3; kind: ItemKind };
+type ItemKind = 'alimento' | 'risorsa' | 'arma';
+type BaseMeta = { description: string; kind: ItemKind; tier?: 1 | 2 | 3 };
 type FoodMeta = BaseMeta & {
   kind: 'alimento';
   isGluten?: boolean;
@@ -22,22 +22,18 @@ type FoodMeta = BaseMeta & {
   isVegetable?: boolean;
   isAlcohol?: boolean;
   isDrugs?: boolean;
-  consumption?: 'mangiare' | 'bere';
+  isFood?: boolean;
+  isDrink?: boolean;
   effectPercent?: number;
-};
-type ClothingMeta = BaseMeta & {
-  kind: 'indumento';
-  protezione?: number;
-  effect?: string;
 };
 type DamageType = 'contundente' | 'chimico' | 'termico' | 'perforante';
 type WeaponMeta = BaseMeta & {
   kind: 'arma';
   danno?: number;
-  munizioni?: number;
+  projectiles?: string;
   damageType?: DamageType;
 };
-type GenericMeta = BaseMeta & { kind: 'generico' };
+type ResourceMeta = BaseMeta & { kind: 'risorsa' };
 
 type Item = {
   id: string;
@@ -48,7 +44,7 @@ type Item = {
   y: number;
   w: number;
   h: number;
-} & (FoodMeta | ClothingMeta | WeaponMeta | GenericMeta);
+} & (FoodMeta | WeaponMeta | ResourceMeta);
 
 // ---- dynamic specs for "others" coming from backend ----
 type InvCategory = 'zaino' | 'cassa';
@@ -1229,13 +1225,17 @@ export default function Inventory() {
                     valueFontSize={VALUE_FS}
                     padding={PAD}
                   >
-                    {Array.from({ length: selectedItem.tier }).map((_, i) => (
-                      <FaStar
-                        key={i}
-                        color='#dfffff'
-                        style={{ marginLeft: 4 }}
-                      />
-                    ))}
+                    {selectedItem.tier ? (
+                      Array.from({ length: selectedItem.tier }).map((_, i) => (
+                        <FaStar
+                          key={i}
+                          color='#dfffff'
+                          style={{ marginLeft: 4 }}
+                        />
+                      ))
+                    ) : (
+                      <span style={{ fontWeight: 700 }}>—</span>
+                    )}
                   </Slot>
                   {selectedItem.kind === 'alimento' && (
                     <>
@@ -1281,61 +1281,39 @@ export default function Inventory() {
                         padding={PAD}
                       >
                         {typeof selectedItem.effectPercent === 'number' ? (
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 6,
-                            }}
-                          >
-                            {selectedItem.consumption === 'bere' ? (
-                              <img
-                                src='/droplet_fill.png'
-                                alt='Sete'
-                                width={ICON_SIZE}
-                                height={ICON_SIZE}
-                              />
-                            ) : (
-                              <img
-                                src='/stomach-fill.png'
-                                alt='Fame'
-                                width={ICON_SIZE}
-                                height={ICON_SIZE}
-                              />
-                            )}
-                            <span style={{ fontWeight: 700 }}>
-                              {selectedItem.effectPercent}%
-                            </span>
-                          </div>
+                          (() => {
+                            const drink = selectedItem.isDrink ?? false;
+                            const food = selectedItem.isFood ?? false;
+                            const hasIcon = drink || food;
+                            const iconSrc = drink
+                              ? '/droplet_fill.png'
+                              : '/stomach-fill.png';
+                            const iconAlt = drink ? 'Sete' : 'Fame';
+                            return (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6,
+                                }}
+                              >
+                                {hasIcon ? (
+                                  <img
+                                    src={iconSrc}
+                                    alt={iconAlt}
+                                    width={ICON_SIZE}
+                                    height={ICON_SIZE}
+                                  />
+                                ) : null}
+                                <span style={{ fontWeight: 700 }}>
+                                  {selectedItem.effectPercent}%
+                                </span>
+                              </div>
+                            );
+                          })()
                         ) : (
                           <span style={{ fontWeight: 700 }}>—</span>
                         )}
-                      </Slot>
-                    </>
-                  )}
-                  {selectedItem.kind === 'indumento' && (
-                    <>
-                      <Slot
-                        label='Protezione'
-                        width={W}
-                        labelFontSize={LABEL_FS}
-                        valueFontSize={VALUE_FS}
-                        padding={PAD}
-                      >
-                        <span style={{ fontWeight: 700 }}>
-                          {selectedItem.protezione ?? 0}
-                        </span>
-                      </Slot>
-                      <Slot
-                        label='Effetto'
-                        width={W}
-                        labelFontSize={LABEL_FS}
-                        valueFontSize={VALUE_FS}
-                        padding={PAD}
-                      >
-                        <span style={{ fontWeight: 700 }}>
-                          {selectedItem.effect ?? '—'}
-                        </span>
                       </Slot>
                     </>
                   )}
@@ -1372,19 +1350,19 @@ export default function Inventory() {
                         </div>
                       </Slot>
                       <Slot
-                        label='Munizioni'
+                        label='Proiettili'
                         width={W}
                         labelFontSize={LABEL_FS}
                         valueFontSize={VALUE_FS}
                         padding={PAD}
                       >
                         <span style={{ fontWeight: 700 }}>
-                          {selectedItem.munizioni ?? 0}
+                          {selectedItem.projectiles ?? '—'}
                         </span>
                       </Slot>
                     </>
                   )}
-                  {selectedItem.kind === 'generico' && (
+                  {selectedItem.kind === 'risorsa' && (
                     <>
                       <Slot
                         label='Info'

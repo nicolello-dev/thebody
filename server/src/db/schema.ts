@@ -41,6 +41,8 @@ export const baseItemsTable = sqliteTable("baseItems", {
     .notNull(),
   image: text().notNull(), // link (relativo) all'immagine, es. /img/items/egg
   description: text().notNull(), // Può contenere HTML
+  inventoryWidth: int().notNull(),
+  inventoryHeight: int().notNull(),
   tier1Value: int().default(0),
   tier1Cost: int().default(0),
   tier2Value: int().default(0),
@@ -49,12 +51,16 @@ export const baseItemsTable = sqliteTable("baseItems", {
   tier3Cost: int().default(0),
   isGluten: int().default(0),
   isSugar: int().default(0),
-  isRedMeat: int().default(0),
+  isMeat: int().default(0),
+  isVegetable: int().default(0),
   isAlcohol: int().default(0),
-  isDrug: int().default(0),
+  isDrugs: int().default(0),
+  isFood: int().default(0),
+  isDrink: int().default(0),
+  effectPercent: int().default(0),
+  projectileType: text(),
+  damageType: text(),
   dmgModifier: real().default(0),
-  inventoryHeight: int().notNull(),
-  inventoryWidth: int().notNull(),
 });
 
 export const itemsTable = sqliteTable("items", {

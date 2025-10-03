@@ -15,9 +15,15 @@ export type BaseItem = {
   tier3Cost: number;
   isGluten: boolean;
   isSugar: boolean;
-  isRedMeat: boolean;
+  isMeat: boolean;
+  isVegetable: boolean;
   isAlcohol: boolean;
-  isDrug: boolean;
+  isDrugs: boolean;
+  isFood: boolean;
+  isDrink: boolean;
+  effectPercent: number;
+  projectileType: string | null;
+  damageType: string | null;
   dmgModifier: number;
   inventoryHeight: number;
   inventoryWidth: number;
@@ -92,9 +98,15 @@ const defaultFauna: Fauna = {
     tier3Cost: 0,
     isGluten: false,
     isSugar: false,
-    isRedMeat: true,
+    isMeat: true,
+    isVegetable: false,
     isAlcohol: false,
-    isDrug: false,
+    isDrugs: false,
+    isFood: true,
+    isDrink: false,
+    effectPercent: 0,
+    projectileType: null,
+    damageType: null,
     dmgModifier: 0,
     inventoryHeight: 1,
     inventoryWidth: 1,

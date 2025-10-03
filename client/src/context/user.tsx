@@ -29,6 +29,7 @@ type Ctx = {
   setName: (n: string | null) => void;
   loading: boolean;
   error: string | null;
+  revision: number;
   refresh: () => Promise<void>;
 };
 
@@ -39,6 +40,7 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
   const [name, setName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [revision, setRevision] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
 
   // Read initial auth and subscribe to your custom auth event
@@ -71,6 +73,7 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
   }, []);
 
   const refresh = useCallback(async () => {
+    setRevision(r => r + 1);
     if (!name) {
       setUser(null);
       return;
@@ -144,6 +147,7 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
         sleep: 70,
         biofeedback: 65,
         temperature: 22,
+        inventory: [],
         unlockedAreas: [],
       }
     : null;
@@ -156,6 +160,7 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
       loading,
       error,
       refresh,
+      revision,
     }),
     [user, devFallback, name, loading, error, refresh],
   );

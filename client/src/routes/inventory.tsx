@@ -263,7 +263,7 @@ export default function Inventory() {
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.name, JSON.stringify(user?.user?.inventory)]); // reload if user inventory changes
+  }, [user?.name, user.revision]);
 
   // Debounced SAVE (PATCH) when userInv/others change
   useEffect(() => {

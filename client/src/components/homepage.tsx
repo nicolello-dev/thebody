@@ -55,7 +55,7 @@ export default function HomePage() {
       >
         <TerminalLogs killzone />
       </div>
-      {/* Boot logs (avvio PDA) più rapidi/lunghi */}
+      {/* Boot logs (kernel/PDA) più rapidi/lunghi */}
       <div
         style={
           {

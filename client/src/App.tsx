@@ -96,8 +96,8 @@ export default function App() {
   }, [isAuthed]);
   // valori globali condivisi
   const [healthValue] = useState(0.6);
-  const [hungerValue] = useState(0.5);
-  const [thirstValue] = useState(0.4);
+  const [hungerValue, setHungerValue] = useState(0.5);
+  const [thirstValue, setThirstValue] = useState(0.5);
 
   // posizione centro cerchio (for selectbg clip)
   const [circleCenterX, setCircleCenterX] = useState<number | null>(null);
@@ -105,6 +105,9 @@ export default function App() {
   // temperatura e clima
   const [climate, setClimate] = useState<-2 | -1 | 0 | 1 | 2>(0);
   const [temperature, setTemperature] = useState<number>(20);
+
+  // robot mode (shared between MonitorWidget and User page)
+  const [isRobot, setIsRobot] = useState<boolean>(false);
 
   // fullscreen container (unico)
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -313,6 +316,7 @@ export default function App() {
             strokeWidth={12}
             color='#dfffff'
             backgroundColor='#10233d'
+            isRobot={isRobot}
             onCenterChange={(x: number) => {
               if (!isInteracting) setCircleCenterX(x);
             }}
@@ -676,6 +680,40 @@ export default function App() {
             {c}
           </button>
         ))}
+      </div>
+
+      {/* Robot mode toggle */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 10,
+          right: 10,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 12,
+            color: 'white',
+            background: 'rgba(0,0,0,0.6)',
+            padding: '4px 8px',
+            borderRadius: 4,
+          }}
+        >
+          <input
+            type='checkbox'
+            checked={isRobot}
+            onChange={e => setIsRobot(e.target.checked)}
+            style={{ margin: 0 }}
+          />
+          Robot Mode
+        </label>
       </div>
 
       {/* Router */}

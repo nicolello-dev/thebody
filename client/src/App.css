@@ -64,3 +64,8 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+/* Scrollbar nascosta per Webkit browsers */
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}

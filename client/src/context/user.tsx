@@ -26,7 +26,7 @@ export type User = {
 };
 
 type Ctx = {
-  user: User | null;
+  user: User;
   name: string | null;
   setName: (n: string | null) => void;
   loading: boolean;
@@ -140,21 +140,19 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
   }, [name, refresh]);
 
   // Optional: dev fallback (only when no user yet)
-  const devFallback: User | null = !user
-    ? {
-        name: 'debug-user',
-        hunger: 50,
-        thirst: 40,
-        oxygen: 90,
-        sleep: 70,
-        biofeedback: 65,
-        temperature: 22,
-        isRobot: 0,
-        energy: 80,
-        inventory: [],
-        unlockedAreas: [],
-      }
-    : null;
+  const devFallback: User = {
+    name: 'debug-user',
+    hunger: 50,
+    thirst: 40,
+    oxygen: 90,
+    sleep: 70,
+    biofeedback: 65,
+    temperature: 22,
+    isRobot: 0,
+    energy: 80,
+    inventory: [],
+    unlockedAreas: [],
+  };
 
   const value = useMemo<Ctx>(
     () => ({

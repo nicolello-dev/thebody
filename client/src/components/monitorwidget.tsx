@@ -21,6 +21,9 @@ interface MonitorWidgetProps {
   backgroundColor?: string;
   temperature?: number; // °C
   onCenterChange?: (x: number) => void; // viewport x of circle center
+  // Robot mode: show central energy tracker instead of human stomach/droplet + mini-crowns
+  isRobot?: boolean;
+  energyValue?: number; // 0..1
 }
 
 export default function MonitorWidget({
@@ -36,37 +39,42 @@ export default function MonitorWidget({
   thirstValue: propThirst,
   oxygenValue: propOxygen,
   sleepValue: propSleep,
+  isRobot = false,
+  energyValue: propEnergy,
 }: MonitorWidgetProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const { user } = useUser();
-  // prefer props, otherwise fallback to user values (if available), otherwise defaults
+  // Debug health constants (used if not provided via props or user)
+  const DBG_MAX_HEALTH = 15;
+  const DBG_CURRENT_HEALTH = 10;
+  // prefer props, otherwise fallback to user values (if available), otherwise debug constants
   const healthValue =
     typeof propHealth === 'number'
-      ? propHealth
-      : user?.biofeedback
-      ? user.biofeedback / 100
-      : 0.6;
+      ? Math.max(0, Math.min(1, propHealth))
+      : user?.biofeedback != null
+      ? Math.max(0, Math.min(1, user.biofeedback / 100))
+      : Math.max(0, Math.min(1, DBG_CURRENT_HEALTH / DBG_MAX_HEALTH));
   const hungerValue =
     typeof propHunger === 'number'
-      ? propHunger
+      ? Math.max(0, Math.min(1, propHunger))
       : user?.hunger
       ? user.hunger / 100
       : 0.5;
   const thirstValue =
     typeof propThirst === 'number'
-      ? propThirst
+      ? Math.max(0, Math.min(1, propThirst))
       : user?.thirst
       ? user.thirst / 100
       : 0.5;
   const oxygenValue =
     typeof propOxygen === 'number'
-      ? propOxygen
+      ? Math.max(0, Math.min(1, propOxygen))
       : user?.oxygen
       ? user.oxygen / 100
       : 0.9;
   const sleepValue =
     typeof propSleep === 'number'
-      ? propSleep
+      ? Math.max(0, Math.min(1, propSleep))
       : user?.sleep
       ? user.sleep / 100
       : 0.8;
@@ -78,7 +86,7 @@ export default function MonitorWidget({
   const dashOffset =
     circumference * (1 - Math.min(Math.max(healthValue, 0), 1));
 
-  // temperature cursor
+  // temperature cursor (hidden in robot mode)
   const minTemp = -5;
   const maxTemp = 45;
   const clampedTemp = Math.min(
@@ -173,14 +181,16 @@ export default function MonitorWidget({
         style={{ pointerEvents: 'none' }}
       />
 
-      {/* main ring */}
-      <image
-        href='/tempround.png'
-        x={size / 2 - size * 0.5 * 1.2 + size * 0.01}
-        y={size / 2 - (size * 1.2) / 2}
-        width={size * 0.5 * 1.2}
-        height={size * 1.2}
-      />
+      {/* main ring (hide in robot mode) */}
+      {!isRobot && (
+        <image
+          href='/tempround.png'
+          x={size / 2 - size * 0.5 * 1.2 + size * 0.01}
+          y={size / 2 - (size * 1.2) / 2}
+          width={size * 0.5 * 1.2}
+          height={size * 1.2}
+        />
+      )}
 
       <circle
         cx={cx}
@@ -203,195 +213,233 @@ export default function MonitorWidget({
         transform={`rotate(-90 ${cx} ${cy})`}
       />
 
-      {/* stomach images */}
-      <image
-        href='/stomach-base.png'
-        x={size / 2 - (size * 1.2) / 2 / 2 + size * 0.03}
-        y={size / 2 - (size * 1.2) / 2}
-        width={(size * 1.2) / 2}
-        height={size * 1.2}
-      />
-      <image
-        href='/stomach-fill.png'
-        x={size / 2 - (size * 1.2) / 2 / 2 + size * 0.03}
-        y={size / 2 - (size * 1.2) / 2}
-        width={(size * 1.2) / 2}
-        height={size * 1.2}
-        style={{
-          clipPath: `inset(${(1 - (0.27 + 0.45 * hungerValue)) * 100}% 0 0 0)`,
-        }}
-      />
-
-      {/* droplet */}
-      <image
-        href='/droplet_base.png'
-        x={size / 2 - size * 0.25}
-        y={size / 2 - (size * 0.3) / 2 - size * 0.13}
-        width={size * 0.3 * 0.6}
-        height={size * 0.3}
-      />
-      <image
-        href='/droplet_fill.png'
-        x={size / 2 - size * 0.25}
-        y={size / 2 - (size * 0.3) / 2 - size * 0.13}
-        width={size * 0.3 * 0.6}
-        height={size * 0.3}
-        style={{ clipPath: `inset(${(1 - thirstValue) * 100}% 0 0 0)` }}
-      />
-
-      {/* temperature cursor */}
-      <g style={gStyle}>
-        <rect
-          x={cursorX}
-          y={cursorY}
-          width={cursorWidth}
-          height={cursorHeight}
-          rx={2}
-          ry={2}
-          fill={color}
-        />
-      </g>
-
-      {/* mini crowns */}
-      <g>
-        {/* oxygen */}
-        <g transform={`translate(${miniBaseX}, ${miniBaseY})`}>
-          <circle
-            cx={0}
-            cy={0}
-            r={miniRadius}
-            stroke='#10233d'
-            strokeWidth={miniStroke}
-            fill='none'
-          />
-          <circle
-            cx={0}
-            cy={0}
-            r={miniRadius}
-            stroke={color}
-            strokeWidth={miniStroke}
-            fill='none'
-            strokeDasharray={miniCirc}
-            strokeDashoffset={oxygenOffset}
-            transform='rotate(-90)'
-          />
-          <foreignObject
-            x={-miniSize / 2}
-            y={-miniSize / 2}
-            width={miniSize}
-            height={miniSize}
-          >
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: `${miniSize * 0.5}px`,
-                lineHeight: 1,
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faLungs}
-                style={{ color, width: '1em', height: '1em' }}
+      {/* robot energy tracker OR human stomach/droplet */}
+      {isRobot ? (
+        (() => {
+          const eVal = Math.min(
+            Math.max(typeof propEnergy === 'number' ? propEnergy : 0.75, 0),
+            1,
+          );
+          const w = size * 0.6;
+          const h = size * 0.6;
+          const x = size / 2 - w / 2;
+          const y = size / 2 - h / 2;
+          const insetTop = (1 - eVal) * 100; // percentage
+          return (
+            <g>
+              <image href='/zap-base.png' x={x} y={y} width={w} height={h} />
+              <image
+                href='/zap-fill.png'
+                x={x}
+                y={y}
+                width={w}
+                height={h}
+                style={{ clipPath: `inset(${insetTop}% 0 0 0)` }}
               />
-            </div>
-          </foreignObject>
-        </g>
+            </g>
+          );
+        })()
+      ) : (
+        <>
+          {/* stomach images */}
+          <image
+            href='/stomach-base.png'
+            x={size / 2 - (size * 1.2) / 2 / 2 + size * 0.03}
+            y={size / 2 - (size * 1.2) / 2}
+            width={(size * 1.2) / 2}
+            height={size * 1.2}
+          />
+          <image
+            href='/stomach-fill.png'
+            x={size / 2 - (size * 1.2) / 2 / 2 + size * 0.03}
+            y={size / 2 - (size * 1.2) / 2}
+            width={(size * 1.2) / 2}
+            height={size * 1.2}
+            style={{
+              clipPath: `inset(${
+                (1 - (0.27 + 0.45 * hungerValue)) * 100
+              }% 0 0 0)`,
+            }}
+          />
 
-        {/* sleep */}
-        <g transform={`translate(${miniBaseX * 1.2}, ${miniBaseY + spacing})`}>
-          <circle
-            cx={0}
-            cy={0}
-            r={miniRadius}
-            stroke='#10233d'
-            strokeWidth={miniStroke}
-            fill='none'
+          {/* droplet */}
+          <image
+            href='/droplet_base.png'
+            x={size / 2 - size * 0.25}
+            y={size / 2 - (size * 0.3) / 2 - size * 0.13}
+            width={size * 0.3 * 0.6}
+            height={size * 0.3}
           />
-          <circle
-            cx={0}
-            cy={0}
-            r={miniRadius}
-            stroke={color}
-            strokeWidth={miniStroke}
-            fill='none'
-            strokeDasharray={miniCirc}
-            strokeDashoffset={sleepOffset}
-            transform='rotate(-90)'
+          <image
+            href='/droplet_fill.png'
+            x={size / 2 - size * 0.25}
+            y={size / 2 - (size * 0.3) / 2 - size * 0.13}
+            width={size * 0.3 * 0.6}
+            height={size * 0.3}
+            style={{ clipPath: `inset(${(1 - thirstValue) * 100}% 0 0 0)` }}
           />
-          <foreignObject
-            x={-miniSize / 2}
-            y={-miniSize / 2}
-            width={miniSize}
-            height={miniSize}
-          >
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: `${miniSize * 0.5}px`,
-                lineHeight: 1,
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faMoon}
-                style={{ color, width: '1em', height: '1em' }}
-              />
-            </div>
-          </foreignObject>
-        </g>
+        </>
+      )}
 
-        {/* biofeedback */}
-        <g transform={`translate(${miniBaseX}, ${miniBaseY + spacing * 2})`}>
-          <circle
-            cx={0}
-            cy={0}
-            r={miniRadius}
-            stroke='#10233d'
-            strokeWidth={miniStroke}
-            fill='none'
+      {/* temperature cursor (only human mode) */}
+      {!isRobot && (
+        <g style={gStyle}>
+          <rect
+            x={cursorX}
+            y={cursorY}
+            width={cursorWidth}
+            height={cursorHeight}
+            rx={2}
+            ry={2}
+            fill={color}
           />
-          <circle
-            cx={0}
-            cy={0}
-            r={miniRadius}
-            stroke={conditionColor}
-            strokeWidth={miniStroke}
-            fill='none'
-            strokeDasharray={miniCirc}
-            strokeDashoffset={0}
-            transform='rotate(-90)'
-          />
-          <foreignObject
-            x={-miniSize / 2}
-            y={-miniSize / 2}
-            width={miniSize}
-            height={miniSize}
-          >
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: `${miniSize * 0.5}px`,
-                lineHeight: 1,
-              }}
-            >
-              <FontAwesomeIcon
-                icon={conditionIcon}
-                style={{ color: conditionColor, width: '1em', height: '1em' }}
-              />
-            </div>
-          </foreignObject>
         </g>
-      </g>
+      )}
+
+      {/* mini crowns (hidden in robot mode) */}
+      {!isRobot && (
+        <g>
+          {/* oxygen */}
+          <g transform={`translate(${miniBaseX}, ${miniBaseY})`}>
+            <circle
+              cx={0}
+              cy={0}
+              r={miniRadius}
+              stroke='#10233d'
+              strokeWidth={miniStroke}
+              fill='none'
+            />
+            <circle
+              cx={0}
+              cy={0}
+              r={miniRadius}
+              stroke={color}
+              strokeWidth={miniStroke}
+              fill='none'
+              strokeDasharray={miniCirc}
+              strokeDashoffset={oxygenOffset}
+              transform='rotate(-90)'
+            />
+            <foreignObject
+              x={-miniSize / 2}
+              y={-miniSize / 2}
+              width={miniSize}
+              height={miniSize}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: `${miniSize * 0.5}px`,
+                  lineHeight: 1,
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faLungs}
+                  style={{ color, width: '1em', height: '1em' }}
+                />
+              </div>
+            </foreignObject>
+          </g>
+
+          {/* sleep */}
+          <g
+            transform={`translate(${miniBaseX * 1.2}, ${miniBaseY + spacing})`}
+          >
+            <circle
+              cx={0}
+              cy={0}
+              r={miniRadius}
+              stroke='#10233d'
+              strokeWidth={miniStroke}
+              fill='none'
+            />
+            <circle
+              cx={0}
+              cy={0}
+              r={miniRadius}
+              stroke={color}
+              strokeWidth={miniStroke}
+              fill='none'
+              strokeDasharray={miniCirc}
+              strokeDashoffset={sleepOffset}
+              transform='rotate(-90)'
+            />
+            <foreignObject
+              x={-miniSize / 2}
+              y={-miniSize / 2}
+              width={miniSize}
+              height={miniSize}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: `${miniSize * 0.5}px`,
+                  lineHeight: 1,
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faMoon}
+                  style={{ color, width: '1em', height: '1em' }}
+                />
+              </div>
+            </foreignObject>
+          </g>
+
+          {/* biofeedback */}
+          <g transform={`translate(${miniBaseX}, ${miniBaseY + spacing * 2})`}>
+            <circle
+              cx={0}
+              cy={0}
+              r={miniRadius}
+              stroke='#10233d'
+              strokeWidth={miniStroke}
+              fill='none'
+            />
+            <circle
+              cx={0}
+              cy={0}
+              r={miniRadius}
+              stroke={conditionColor}
+              strokeWidth={miniStroke}
+              fill='none'
+              strokeDasharray={miniCirc}
+              strokeDashoffset={0}
+              transform='rotate(-90)'
+            />
+            <foreignObject
+              x={-miniSize / 2}
+              y={-miniSize / 2}
+              width={miniSize}
+              height={miniSize}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: `${miniSize * 0.5}px`,
+                  lineHeight: 1,
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={conditionIcon}
+                  style={{ color: conditionColor, width: '1em', height: '1em' }}
+                />
+              </div>
+            </foreignObject>
+          </g>
+        </g>
+      )}
     </svg>
   );
 }

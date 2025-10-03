@@ -11,6 +11,7 @@ import {
 import { eq } from "drizzle-orm";
 import { getDinosaurById } from "./dao/dinosaur";
 import { getInventoriesForUser } from "./routes/inventories";
+import { registerGameMasterRoutes } from "./routes/gm";
 
 const fastify = Fastify({
   logger: true,
@@ -25,6 +26,8 @@ fastify.register(cors, {
 const wsManager = new WebsocketManager();
 
 fastify.register(async function (fastify) {
+  registerGameMasterRoutes(fastify, wsManager);
+
   fastify.get("/ws", { websocket: true }, (connection, req) => {
     const url = new URL(req.url, "http://localhost");
     const name = url.searchParams.get("name");
@@ -53,7 +56,7 @@ fastify.register(async function (fastify) {
       return;
     }
 
-    res.code(200).send();
+    res.code(200).send({ isGm: !!users[0].isGm });
     return;
   });
 

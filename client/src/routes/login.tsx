@@ -56,10 +56,17 @@ export default function LoginPage() {
     );
     if (response.ok) {
       setError(null);
+      let gmFlag = false;
+      try {
+        const data = await response.json();
+        gmFlag = !!(data as any)?.isGm;
+      } catch (err) {
+        console.warn('Impossibile leggere la risposta di login:', err);
+      }
       try {
         localStorage.setItem(
           'thebody.auth',
-          JSON.stringify({ user: username, t: Date.now() }),
+          JSON.stringify({ user: username, gm: gmFlag, t: Date.now() }),
         );
       } catch {}
       try {

@@ -9,6 +9,7 @@ import {
 import HomePage from './components/homepage';
 import LoginPage from './routes/login';
 import MonitorWidget from './components/monitorwidget';
+import GMOverlay from './components/gmOverlay';
 import Inventory from './routes/inventory';
 import Database from './routes/database';
 import Crafting from './routes/crafting';
@@ -773,6 +774,8 @@ export default function App() {
           element={isAuthed ? <Dossier /> : <Navigate to='/' replace />}
         />
       </Routes>
+
+      <GMOverlay />
 
       {/* Overlay di benvenuto dopo login */}
       {showWelcome && (

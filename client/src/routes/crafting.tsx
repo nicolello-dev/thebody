@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { FaCubes, FaFistRaised, FaAppleAlt, FaEraser, FaFillDrip, FaVial, FaSearch, FaCheck, FaSuitcase } from "react-icons/fa";
 import CommandStreamRight from "../components/commandstream-right";
+import { useUser } from "../context/user";
 
 // Catalog/recipe types
 type ItemType = "risorsa" | "arma" | "alimento";
@@ -406,6 +407,9 @@ function Slot({
 }
 
 export default function Crafting() {
+  const { user } = useUser();
+  const isGm = Boolean(user?.isGm);
+
   const [inventories, setInventories] = useState<InventoriesStore>(() => loadInventories());
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<ItemType | null>(null);
@@ -508,6 +512,7 @@ export default function Crafting() {
   }
 
   function fillInventoryForTest() {
+    if (!isGm) return;
     setInventories((prev) => {
       const next: InventoriesStore = { ...prev, zaino: [...(prev.zaino || [])] };
       // Try to place a variety of items until near capacity
@@ -528,6 +533,7 @@ export default function Crafting() {
   }
 
   function clearZaino() {
+    if (!isGm) return;
     setInventories((prev) => ({ ...prev, zaino: [] }));
   }
 
@@ -1031,58 +1037,62 @@ export default function Crafting() {
           <FaEraser />
         </button>
         {/* Debug controls */}
-        <button 
-          onClick={fillInventoryForTest} 
-          className="filter-button"
-          style={{ 
-            padding: "12px",
-            width: "60px",
-            height: "60px",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#47a8bf",
-            fontSize: "20px",
-            opacity: 0.9,
-            transition: "all 0.2s ease",
-            backgroundColor: "transparent",
-            position: "relative",
-            zIndex: 1,
-          }}
-          title="Riempi inventario per test"
-          onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = "0.9"}
-        >
-          <FaFillDrip />
-        </button>
-        <button 
-          onClick={clearZaino} 
-          className="filter-button"
-          style={{ 
-            padding: "12px",
-            width: "60px",
-            height: "60px",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#bf4747",
-            fontSize: "20px",
-            opacity: 0.9,
-            transition: "all 0.2s ease",
-            backgroundColor: "transparent",
-            position: "relative",
-            zIndex: 1,
-          }}
-          title="Svuota zaino"
-          onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = "0.9"}
-        >
-          <FaVial />
-        </button>
+        {isGm && (
+          <>
+            <button
+              onClick={fillInventoryForTest}
+              className="filter-button"
+              style={{
+                padding: "12px",
+                width: "60px",
+                height: "60px",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#47a8bf",
+                fontSize: "20px",
+                opacity: 0.9,
+                transition: "all 0.2s ease",
+                backgroundColor: "transparent",
+                position: "relative",
+                zIndex: 1,
+              }}
+              title="Riempi inventario per test"
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.9")}
+            >
+              <FaFillDrip />
+            </button>
+            <button
+              onClick={clearZaino}
+              className="filter-button"
+              style={{
+                padding: "12px",
+                width: "60px",
+                height: "60px",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#bf4747",
+                fontSize: "20px",
+                opacity: 0.9,
+                transition: "all 0.2s ease",
+                backgroundColor: "transparent",
+                position: "relative",
+                zIndex: 1,
+              }}
+              title="Svuota zaino"
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.9")}
+            >
+              <FaVial />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Spazio per scritta ALGORITMO-SURVIVAL-STATUS (nascosta) */}

@@ -20,6 +20,8 @@ export type User = {
   biofeedback: number;
   temperature: number;
   isRobot: number;
+  isGm: number;
+  isSick: number;
   energy: number;
   unlockedAreas: Array<[number, number]>;
   inventory: Array<any>;
@@ -149,6 +151,8 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
     biofeedback: 65,
     temperature: 22,
     isRobot: 0,
+    isGm: 0,
+    isSick: 0,
     energy: 80,
     inventory: [],
     unlockedAreas: [],
@@ -164,7 +168,7 @@ export function UserProvider({ children }: PropsWithChildren<{}>) {
       refresh,
       revision,
     }),
-    [user, devFallback, name, loading, error, refresh],
+    [user, devFallback, name, loading, error, refresh, revision],
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

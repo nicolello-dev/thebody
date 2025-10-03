@@ -14,7 +14,7 @@ export default function HomePage() {
   {/* Terminal logs attorno al logo (standard) */}
   <div style={{ position: "absolute", top: 200, right: 200, '--safe-x': '400px', '--safe-y': '400px' } as React.CSSProperties}><TerminalLogs killzone /></div>
   <div style={{ position: "absolute", bottom: 200, right: 200, '--safe-x': '400px', '--safe-y': '400px' } as React.CSSProperties}><TerminalLogs killzone /></div>
-  {/* Boot logs (avvio PDA) più rapidi/lunghi */}
+  {/* Boot logs (kernel/PDA) più rapidi/lunghi */}
   <div style={{ position: "absolute", top: 200, left: 200, '--safe-x': '400px', '--safe-y': '400px' } as React.CSSProperties}><BootLogs killzone /></div>
   <div style={{ position: "absolute", bottom: 200, right: 200, '--safe-x': '400px', '--safe-y': '400px' } as React.CSSProperties}><BootLogs killzone /></div>
 

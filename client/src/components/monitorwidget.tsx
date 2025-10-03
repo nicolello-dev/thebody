@@ -39,7 +39,7 @@ export default function MonitorWidget({
   thirstValue: propThirst,
   oxygenValue: propOxygen,
   sleepValue: propSleep,
-  isRobot = true,
+  isRobot = false,
   energyValue: propEnergy,
 }: MonitorWidgetProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -55,16 +55,16 @@ export default function MonitorWidget({
         : Math.max(0, Math.min(1, DBG_CURRENT_HEALTH / DBG_MAX_HEALTH))
       );
   const hungerValue = typeof propHunger === "number"
-    ? propHunger
+    ? Math.max(0, Math.min(1, propHunger))
     : user?.hunger ? user.hunger / 100 : 0.5;
   const thirstValue = typeof propThirst === "number"
-    ? propThirst
+    ? Math.max(0, Math.min(1, propThirst))
     : user?.thirst ? user.thirst / 100 : 0.5;
   const oxygenValue = typeof propOxygen === "number"
-    ? propOxygen
+    ? Math.max(0, Math.min(1, propOxygen))
     : user?.oxygen ? user.oxygen / 100 : 0.9;
   const sleepValue = typeof propSleep === "number"
-    ? propSleep
+    ? Math.max(0, Math.min(1, propSleep))
     : user?.sleep ? user.sleep / 100 : 0.8;
 
   const cx = size / 2;

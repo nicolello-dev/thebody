@@ -71,7 +71,19 @@ const damageIconFor = (t?: DamageType) => {
   }
 };
 
-export default function Inventory() {
+interface InventoryProps {
+  hungerValue?: number;
+  thirstValue?: number;
+  onHungerChange?: (value: number) => void;
+  onThirstChange?: (value: number) => void;
+}
+
+export default function Inventory({ 
+  hungerValue = 0.5, 
+  thirstValue = 0.5, 
+  onHungerChange, 
+  onThirstChange 
+}: InventoryProps) {
   // Specifiche inventari e dimensioni (tile 50px)
   const TILE = 50;
   // Layout variables to easily reposition both inventories together
@@ -101,7 +113,10 @@ export default function Inventory() {
     () => ({
       zaino: [
         { id: "ossa-1", name: "Ossa", icon: "/ossa.png", image: "/" + slugify("Ossa") + ".png", x: 3, y: 2, w: 1, h: 1, kind: "generico", description: "Frammenti scheletrici utili in lavorazione grezza.", tier: 1 },
-  { id: "bastoneacuminato-1", name: "Bastone Acuminato", icon: "/bastoneacuminato.png", image: "/" + slugify("Bastone Acuminato") + ".png", x: 6, y: 1, w: 1, h: 5, kind: "arma", description: "Asta di legno affilata per colpi perforanti.", tier: 2, danno: 10, munizioni: 0, damageType: "perforante" },
+        { id: "bastoneacuminato-1", name: "Bastone Acuminato", icon: "/bastoneacuminato.png", image: "/" + slugify("Bastone Acuminato") + ".png", x: 6, y: 1, w: 1, h: 5, kind: "arma", description: "Asta di legno affilata per colpi perforanti.", tier: 2, danno: 10, munizioni: 0, damageType: "perforante" },
+        // Debug items per testare il consumo
+        { id: "cibo-test", name: "Cibo Test", icon: "/pelle.png", image: "/" + slugify("Cibo Test") + ".png", x: 0, y: 0, w: 1, h: 1, kind: "alimento", description: "Cibo di test per la fame.", tier: 1, isGluten: false, isSugar: false, isMeat: true, isVegetable: false, isAlcohol: false, isDrugs: false, consumption: "mangiare", effectPercent: 30 },
+        { id: "bevanda-test", name: "Bevanda Test", icon: "/pelle.png", image: "/" + slugify("Bevanda Test") + ".png", x: 1, y: 0, w: 1, h: 1, kind: "alimento", description: "Bevanda di test per la sete.", tier: 1, isGluten: false, isSugar: false, isMeat: false, isVegetable: false, isAlcohol: false, isDrugs: false, consumption: "bere", effectPercent: 25 },
       ],
       cassa_a: [
         { id: "pelle-1", name: "Pelle", icon: "/pelle.png", image: "/" + slugify("Pelle") + ".png", x: 2, y: 2, w: 1, h: 1, kind: "indumento", description: "Strato dermico trattato, utile per protezione base.", tier: 1, protezione: 2, effect: "Isolamento" },
@@ -134,6 +149,12 @@ export default function Inventory() {
       localStorage.setItem(INV_STORE_KEY, JSON.stringify(inventories));
     } catch {}
   }, [inventories]);
+
+  // Funzione per resettare l'inventario ai valori iniziali (debug)
+  const resetToInitialInventories = () => {
+    setInventories(initialInventories);
+    localStorage.removeItem(INV_STORE_KEY);
+  };
 
   const [auxInv, setAuxInv] = useState<Exclude<InventoryKey, "zaino">>("cassa_a");
 
@@ -301,6 +322,43 @@ export default function Inventory() {
     return () => window.removeEventListener('resize', update);
   }, [auxInv, inventories]);
 
+  // Funzione per consumare un alimento
+  const consumeFood = (item: Item) => {
+    if (item.kind !== "alimento") return;
+    
+    const foodMeta = item as Item & FoodMeta;
+    const effectPercent = (foodMeta.effectPercent ?? 0) / 100; // Converti da percentuale a decimale
+    
+    if (foodMeta.consumption === "mangiare") {
+      // Aumenta fame (clampato tra 0 e 1)
+      const newHungerValue = Math.max(0, Math.min(1, hungerValue + effectPercent));
+      onHungerChange?.(newHungerValue);
+    } else if (foodMeta.consumption === "bere") {
+      // Aumenta sete (clampato tra 0 e 1)
+      const newThirstValue = Math.max(0, Math.min(1, thirstValue + effectPercent));
+      onThirstChange?.(newThirstValue);
+    }
+    
+    // Rimuovi l'oggetto dall'inventario dopo il consumo
+    setInventories(prev => {
+      const next = { ...prev };
+      // Trova l'inventario che contiene l'oggetto
+      for (const [invKey, items] of Object.entries(next)) {
+        const itemIndex = items.findIndex(i => i.id === item.id);
+        if (itemIndex !== -1) {
+          next[invKey as InventoryKey] = items.filter(i => i.id !== item.id);
+          break;
+        }
+      }
+      return next;
+    });
+    
+    // Deseleziona l'oggetto se era selezionato
+    if (selectedItem?.id === item.id) {
+      setSelectedItem(null);
+    }
+  };
+
   return (
     <div
       style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden", userSelect: "none", WebkitUserSelect: "none" }}
@@ -318,6 +376,29 @@ export default function Inventory() {
       >
         _INVENTARIO//
       </div>
+
+      {/* Pulsante Reset Debug (solo per testing) */}
+      <button
+        onClick={resetToInitialInventories}
+        style={{
+          position: "absolute",
+          top: 80,
+          left: 300,
+          padding: "8px 16px",
+          background: "rgba(255, 100, 100, 0.8)",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontSize: "12px",
+          fontFamily: "Eurostile, sans-serif",
+          textTransform: "uppercase",
+          zIndex: 2
+        }}
+        title="Reset inventario per mostrare item di debug"
+      >
+        Reset Debug Items
+      </button>
 
       {/* Layout principale: colonna sinistra (Zaino + 5x5). Il contenitore destro viene reso altrove (in basso a destra). */}
       <div
@@ -382,9 +463,9 @@ export default function Inventory() {
                 gridTemplateRows: `repeat(${INV_SPECS.zaino.rows}, ${TILE}px)`,
               }}
             >
-            {(inventories.zaino ?? []).map((it) => (
+            {(inventories.zaino ?? []).map((it, index) => (
               <div
-                key={it.id}
+                key={`${it.id}-${it.x}-${it.y}-${index}`}
                 title={it.name}
                 style={{
                   gridColumn: `${it.x + 1} / ${it.x + it.w + 1}`,
@@ -463,9 +544,9 @@ export default function Inventory() {
               gridTemplateRows: `repeat(5, ${TILE}px)`,
             }}
           >
-            {(inventories.zaino_5x5 ?? []).map((it) => (
+            {(inventories.zaino_5x5 ?? []).map((it, index) => (
               <div
-                key={it.id}
+                key={`${it.id}-5x5-${it.x}-${it.y}-${index}`}
                 title={it.name}
                 style={{
                   gridColumn: `${it.x + 1} / ${it.x + it.w + 1}`,
@@ -564,9 +645,9 @@ export default function Inventory() {
                 gridTemplateRows: `repeat(${INV_SPECS[auxInv].rows}, ${TILE}px)`,
               }}
             >
-              {(inventories[auxInv] ?? []).map((it) => (
+              {(inventories[auxInv] ?? []).map((it, index) => (
                 <div
-                  key={it.id}
+                  key={`${it.id}-${auxInv}-${it.x}-${it.y}-${index}`}
                   title={it.name}
                   style={{
                     gridColumn: `${it.x + 1} / ${it.x + it.w + 1}`,
@@ -746,6 +827,36 @@ export default function Inventory() {
                 >
                   {selectedItem.description}
                 </div>
+
+                {/* Pulsante Consuma per alimenti */}
+                {selectedItem.kind === "alimento" && (
+                  <button
+                    onClick={() => consumeFood(selectedItem)}
+                    style={{
+                      width: W,
+                      height: "48px",
+                      marginTop: "8px",
+                      background: "url(/bg-subtitle.png) center/cover no-repeat",
+                      border: "none",
+                      color: "#dfffff",
+                      fontFamily: "Eurostile, sans-serif",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "2px",
+                      cursor: "pointer",
+                      filter: "brightness(1.2)",
+                      transition: "filter 0.2s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.filter = "brightness(1.4)"}
+                    onMouseLeave={(e) => e.currentTarget.style.filter = "brightness(1.2)"}
+                  >
+                    {(selectedItem as Item & FoodMeta).consumption === "mangiare" ? "MANGIA" : "BEVI"}
+                  </button>
+                )}
               </div>
             );
           })()}

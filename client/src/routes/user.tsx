@@ -14,14 +14,14 @@ import {
   faLungs,
   faMoon,
   faHeartPulse,
-  faShirt,
   faGun,
   faRotateLeft,
+  faSuitcase,
 } from '@fortawesome/free-solid-svg-icons';
 // import MonitorWidget from "../components/monitorwidget"; // non usato qui, mostriamo soli valori
 
 // Minimal re-use of inventory item types and helpers (aligned with inventory/crafting)
-type InvItemKind = 'alimento' | 'indumento' | 'arma' | 'generico';
+type InvItemKind = 'alimento' | 'arma' | 'risorsa';
 type InvItem = {
   id: string;
   name: string;
@@ -159,7 +159,7 @@ export default function User({
           id: 'test-outfit-1',
           name: 'Tuta Spaziale',
           icon: '/zaino.png',
-          kind: 'indumento',
+          kind: 'risorsa',
           x: 0,
           y: 1,
           w: 2,
@@ -171,7 +171,7 @@ export default function User({
           id: 'test-outfit-2',
           name: 'Armatura',
           icon: '/pelle.png',
-          kind: 'indumento',
+          kind: 'risorsa',
           x: 2,
           y: 1,
           w: 2,
@@ -191,7 +191,7 @@ export default function User({
   const zaino = inventories.zaino || [];
   const weapons = useMemo(() => zaino.filter(i => i.kind === 'arma'), [zaino]);
   const outfits = useMemo(
-    () => zaino.filter(i => i.kind === 'indumento'),
+    () => zaino.filter(i => i.kind === 'risorsa'),
     [zaino],
   );
   const usedTiles = useMemo(
@@ -213,8 +213,8 @@ export default function User({
   function equipItem(slot: 'left' | 'right' | 'outfit', item: InvItem) {
     setError(null);
     // validate kind for slot
-    if (slot === 'outfit' && item.kind !== 'indumento') {
-      setError('Solo indumenti possono essere equipaggiati nello slot Outfit.');
+    if (slot === 'outfit' && item.kind !== 'risorsa') {
+      setError('Solo risorse compatibili possono essere equipaggiate nello slot Outfit.');
       return;
     }
     if ((slot === 'left' || slot === 'right') && item.kind !== 'arma') {
@@ -521,7 +521,7 @@ export default function User({
     item?: InvItem | null;
     onPick: () => void;
     onUnequip: () => void;
-    kind: 'arma' | 'indumento';
+    kind: 'arma' | 'risorsa';
   }) {
     return (
       <div
@@ -625,7 +625,7 @@ export default function User({
                 fontSize: 24,
               }}
             >
-              <FontAwesomeIcon icon={kind === 'arma' ? faGun : faShirt} />
+              <FontAwesomeIcon icon={kind === 'arma' ? faGun : faSuitcase} />
             </div>
             <div
               onMouseUp={e => {
@@ -857,7 +857,7 @@ export default function User({
           >
             <Slot
               label='Outfit'
-              kind='indumento'
+              kind='risorsa'
               item={equip.outfit}
               onPick={() => openPicker('outfit')}
               onUnequip={() => unequipItem('outfit')}
@@ -931,7 +931,7 @@ export default function User({
             >
               <strong>
                 Seleziona{' '}
-                {picker!.slot === 'outfit' ? 'un indumento' : "un'arma"}
+                {picker!.slot === 'outfit' ? 'una risorsa' : "un'arma"}
               </strong>
               <button
                 onClick={() => setPicker(null)}

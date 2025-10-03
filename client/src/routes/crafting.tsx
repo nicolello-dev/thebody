@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { FaCubes, FaTshirt, FaFistRaised, FaAppleAlt, FaEraser, FaFillDrip, FaVial, FaSearch, FaCheck, FaSuitcase } from "react-icons/fa";
+import { FaCubes, FaFistRaised, FaAppleAlt, FaEraser, FaFillDrip, FaVial, FaSearch, FaCheck, FaSuitcase } from "react-icons/fa";
 import CommandStreamRight from "../components/commandstream-right";
 
 // Catalog/recipe types
-type ItemType = "risorsa" | "indumento" | "arma" | "alimento";
+type ItemType = "risorsa" | "arma" | "alimento";
 type RecipePart = { name: string; count: number };
 type Craftable = {
   name: string;
@@ -15,7 +15,7 @@ type Craftable = {
 };
 
 // Inventory store types (subset aligned with routes/inventory)
-type InvItemKind = "alimento" | "indumento" | "arma" | "generico";
+type InvItemKind = "alimento" | "arma" | "risorsa";
 type InvItem = {
   id: string;
   name: string;
@@ -58,7 +58,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Pelle Rinforzata",
-    type: "indumento",
+    type: "risorsa",
     icon: "/pelle.png",
     w: 2,
     h: 2,
@@ -92,7 +92,7 @@ const CRAFTABLES: Craftable[] = [
   // Debug items with various sizes
   {
     name: "Armatura Completa",
-    type: "indumento", 
+    type: "risorsa", 
     icon: "/pelle.png",
     w: 3,
     h: 4,
@@ -118,7 +118,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Scudo Grande",
-    type: "indumento",
+    type: "risorsa",
     icon: "/roccia.png",
     w: 3,
     h: 3,
@@ -139,7 +139,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Armatura Leggera",
-    type: "indumento",
+    type: "risorsa",
     icon: "/pelle.png",
     w: 2,
     h: 3,
@@ -192,7 +192,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Armatura Pesante",
-    type: "indumento",
+    type: "risorsa",
     icon: "/roccia.png",
     w: 3,
     h: 4,
@@ -214,7 +214,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Scudo Medio",
-    type: "indumento",
+    type: "risorsa",
     icon: "/roccia.png",
     w: 2,
     h: 2,
@@ -257,7 +257,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Casco",
-    type: "indumento",
+    type: "risorsa",
     icon: "/roccia.png",
     w: 1,
     h: 1,
@@ -267,7 +267,7 @@ const CRAFTABLES: Craftable[] = [
   },
   {
     name: "Torre Scudo",
-    type: "indumento",
+    type: "risorsa",
     icon: "/roccia.png",
     w: 2,
     h: 4,
@@ -313,7 +313,7 @@ const slugify = (name: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const mapTypeToKind = (t: ItemType): InvItemKind => (t === "risorsa" ? "generico" : (t as InvItemKind));
+const mapTypeToKind = (t: ItemType): InvItemKind => t as InvItemKind;
 
 const loadInventories = (): InventoriesStore => {
   try {
@@ -464,11 +464,14 @@ export default function Crafting() {
   // Mapping delle icone per ogni tipo di item
   const getIconForType = (type: ItemType) => {
     switch (type) {
-      case "risorsa": return <FaCubes />;
-      case "indumento": return <FaTshirt />;
-      case "arma": return <FaFistRaised />;
-      case "alimento": return <FaAppleAlt />;
-      default: return <FaCubes />;
+      case "risorsa":
+        return <FaCubes />;
+      case "arma":
+        return <FaFistRaised />;
+      case "alimento":
+        return <FaAppleAlt />;
+      default:
+        return <FaCubes />;
     }
   };
 
@@ -476,7 +479,14 @@ export default function Crafting() {
   const totalTiles = GRID_COLS * GRID_ROWS;
 
   // Debug helpers: fill inventory with test items to try crafting
-  function addItemToZaino(next: InventoriesStore, name: string, icon: string, w: number, h: number, kind: InvItemKind = "generico") {
+  function addItemToZaino(
+    next: InventoriesStore,
+    name: string,
+    icon: string,
+    w: number,
+    h: number,
+    kind: InvItemKind = "risorsa",
+  ) {
     const pos = findPlacement(next.zaino || [], w, h);
     if (!pos) return false;
     const id = `${slugify(name)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -502,9 +512,9 @@ export default function Crafting() {
       const next: InventoriesStore = { ...prev, zaino: [...(prev.zaino || [])] };
       // Try to place a variety of items until near capacity
       const batches: Array<{ name: string; icon: string; w: number; h: number; kind?: InvItemKind; count: number }> = [
-        { name: "Roccia", icon: "/roccia.png", w: 2, h: 2, kind: "generico", count: 6 },
-        { name: "Pelle", icon: "/pelle.png", w: 1, h: 1, kind: "indumento", count: 8 },
-        { name: "Ossa", icon: "/ossa.png", w: 1, h: 1, kind: "generico", count: 6 },
+        { name: "Roccia", icon: "/roccia.png", w: 2, h: 2, kind: "risorsa", count: 6 },
+        { name: "Pelle", icon: "/pelle.png", w: 1, h: 1, kind: "risorsa", count: 8 },
+        { name: "Ossa", icon: "/ossa.png", w: 1, h: 1, kind: "risorsa", count: 6 },
         { name: "Bastone Acuminato", icon: "/bastoneacuminato.png", w: 1, h: 5, kind: "arma", count: 1 },
       ];
       for (const b of batches) {
@@ -965,7 +975,7 @@ export default function Crafting() {
             }}
           />
         </div>
-        {(["risorsa", "indumento", "arma", "alimento"] as ItemType[]).map((t) => (
+        {(["risorsa", "arma", "alimento"] as ItemType[]).map((t) => (
           <button
             key={t}
             onClick={() => setFilter((f) => (f === t ? null : t))}

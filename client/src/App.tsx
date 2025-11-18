@@ -15,6 +15,7 @@ import Database from './routes/database';
 import Crafting from './routes/crafting';
 import MapPage from './routes/map';
 import User from './routes/user';
+import { useUser } from './context/user';
 
 // nuove pagine collegate alle icone del Database
 import Flora from './routes/flora';
@@ -96,9 +97,12 @@ export default function App() {
     }
   }, [isAuthed]);
   // valori globali condivisi
-  const [healthValue] = useState(0.6);
-  const [hungerValue, setHungerValue] = useState(0.5);
-  const [thirstValue, setThirstValue] = useState(0.5);
+  const { user } = useUser();
+  
+  // Connect to real user data
+  const healthValue = user ? user.biofeedback / 100 : 0;
+  const hungerValue = user ? user.hunger / 100 : 0;
+  const thirstValue = user ? user.thirst / 100 : 0;
 
   // posizione centro cerchio (for selectbg clip)
   const [circleCenterX, setCircleCenterX] = useState<number | null>(null);

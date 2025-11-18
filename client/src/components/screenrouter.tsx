@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import {
   faBox,
   faDatabase,
@@ -92,7 +92,7 @@ const ScreenRouter: React.FC<{
         title='Menu'
       >
         <span className='inner'>
-          <FontAwesomeIcon icon={faList} size='2x' />
+          <FontAwesome Icon icon={faList} size='2x' />
         </span>
       </button>
 
@@ -116,7 +116,7 @@ const ScreenRouter: React.FC<{
                 : undefined
             }
           >
-            <FontAwesomeIcon icon={icon} size='2x' />
+            <FontAwesome Icon icon={icon} size='2x' />
           </button>
         ))}
       </div>

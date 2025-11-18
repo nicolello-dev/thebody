@@ -18,6 +18,7 @@ import {
   faRotateLeft,
   faSuitcase,
 } from '@fortawesome/free-solid-svg-icons';
+import ScannerEffect from '../components/scannerEffect';
 // import MonitorWidget from "../components/monitorwidget"; // non usato qui, mostriamo soli valori
 
 // Minimal re-use of inventory item types and helpers (aligned with inventory/crafting)
@@ -112,6 +113,86 @@ export default function User({
     loadInventories(),
   );
   const [equip, setEquip] = useState<EquipmentStore>(() => loadEquip());
+
+      // Layout constants
+  const LEFT_CONTAINER_DISTANCE = 19; // Percentage from left (increased spacing)
+  const RIGHT_CONTAINER_DISTANCE = 5; // Percentage from right (increased spacing)
+  const CENTER_CONTAINER_LEFT = '57.25%'; // Center container horizontal position
+  const CENTER_CONTAINER_TOP = '4%'; // Center container vertical position
+  const BODYSCAN_CONTAINER_LEFT = '55%'; // Bodyscan container horizontal position
+  const BODYSCAN_CONTAINER_TOP = '3%'; // Bodyscan container vertical position (same as center)
+  const LEFT_CONTAINER_TOP = 5; // Left container vertical position
+  const BIOSCAN_CONTAINER_TOP = '3%'; // Bioscan container vertical position
+  const RIGHT_CONTAINER_TOP = '4%'; // Right container vertical position
+  
+    
+  // Container dimensions
+  const SIDE_CONTAINER_WIDTH = 500; // Fixed width for left and right containers
+  const CENTER_CONTAINER_WIDTH = 425; // Width matching scan-organs
+  const BODYSCAN_CONTAINER_SIZE = 300; // Width and height for the square bodyscan container
+  const BIOSCAN_CONTAINER_SIZE = '55vh'; // Size for the bioscan container (viewport height based)
+  const BIOSCAN_CONTAINER_DISTANCE = 15.85; // Percentage from left for bioscan container
+
+  // Add CSS for slider styling and asset preloading
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #2fd0ff;
+        cursor: pointer;
+        box-shadow: 0 0 8px rgba(47, 208, 255, 0.5);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #2fd0ff;
+        cursor: pointer;
+        box-shadow: 0 0 8px rgba(47, 208, 255, 0.5);
+        border: none;
+      }
+
+      input[type="range"]::-webkit-slider-track {
+        height: 20px;
+        border-radius: 10px;
+        outline: none;
+      }
+
+      input[type="range"]::-moz-range-track {
+        height: 20px;
+        border-radius: 10px;
+        outline: none;
+        border: none;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Preload critical assets to prevent disappearing issues
+    const preloadAssets = [
+      '/scan-organs.png',
+      '/encefaloanalisilive.png',
+      '/encefaloanalisidead.png',
+      '/bg.png'
+    ];
+    
+    preloadAssets.forEach(src => {
+      const img = new Image();
+      img.src = src + '?preload=' + Date.now();
+    });
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const [picker, setPicker] = useState<null | {
     slot: 'left' | 'right' | 'outfit';
   }>(null);
@@ -287,6 +368,16 @@ export default function User({
     typeof propTemperature === 'number' ? propTemperature : user.temperature;
   const [tempDisplay, setTempDisplay] = useState<number>(actualTemperature);
   const latestTempRef = useRef<number>(actualTemperature);
+  const [waveTime, setWaveTime] = useState(0);
+  const waveCanvasRef1 = useRef<HTMLCanvasElement>(null);
+  const waveCanvasRef2 = useRef<HTMLCanvasElement>(null);
+  const waveCanvasRef3 = useRef<HTMLCanvasElement>(null);
+  const [debugHealth, setDebugHealth] = useState<number | null>(null);
+  
+  // Scanner rotation state
+  const [scannerImageIndex, setScannerImageIndex] = useState(0);
+  const scannerImages = ['scan-organs.png', 'scan-skeleton.png', 'scan-muscles.png'];
+  const [scannerKey, setScannerKey] = useState(0); // Key to force re-render of animation
 
   // Update ref immediately when actualTemperature changes
   useEffect(() => {
@@ -307,17 +398,200 @@ export default function User({
     return () => clearInterval(id);
   }, [tempDisplay]);
 
-  // Dynamic health model: current x / max
-  // Debug constants aligned with MonitorWidget
-  const DBG_MAX_HEALTH = 15;
-  const DBG_CURRENT_HEALTH = 10;
-  // Health calculation: for now use debug constants to ensure x/max reflects 10/15
-  const maxHealth = DBG_MAX_HEALTH;
-  const currentHealth = Math.max(
-    0,
-    Math.min(DBG_CURRENT_HEALTH, DBG_MAX_HEALTH),
-  );
+  // Wave animation - optimized
+  useEffect(() => {
+    const animate = () => {
+      setWaveTime(prev => prev + 0.01); // Reduced from 0.02
+    };
+    const animationId = setInterval(animate, 33); // Reduced from 16ms to 33ms (~30fps)
+    return () => clearInterval(animationId);
+  }, []);
 
+  // Scanner rotation effect - rotates image every scanner cycle (2 seconds)
+  useEffect(() => {
+    const rotateScanner = () => {
+      setScannerImageIndex(prev => (prev + 1) % scannerImages.length);
+      setScannerKey(prev => prev + 1); // Force re-render of animation
+    };
+    
+    // Scanner completes a cycle every 2 seconds
+    const scannerId = setInterval(rotateScanner, 2000);
+    return () => clearInterval(scannerId);
+  }, [scannerImages.length]);
+
+  // Health calculation using biofeedback from user data
+  const currentHealth = user.biofeedback;
+  const maxHealth = 100; // Biofeedback is typically 0-100
+  const healthPercentage = (currentHealth / maxHealth) * 100;
+  
+  // Wave mode based on health
+  const healthThreshold = Math.floor(maxHealth * 0.50); // 50% della salute massima
+  const waveMode = currentHealth <= 0 ? 'morto' : currentHealth <= healthThreshold ? 'agitato' : 'rilassato';
+
+  // Draw waves on canvases - optimized
+  useEffect(() => {
+    const drawWave = (canvas: HTMLCanvasElement | null, waveFunction: (x: number, t: number) => number, color: string) => {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      const width = canvas.width = 250;
+      const height = canvas.height = 50;
+      const centerY = height / 2;
+      
+      // Clear canvas and add grid background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Enhanced grid background
+      ctx.strokeStyle = 'rgba(223, 255, 255, 0.1)';
+      ctx.lineWidth = 0.5;
+      
+      // Horizontal grid lines
+      for (let i = 1; i < 4; i++) {
+        const y = (height / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      
+      // Vertical grid lines
+      for (let i = 1; i < 8; i++) {
+        const x = (width / 8) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      
+      // Reduced sampling for better performance
+      for (let x = 0; x < width; x += 2) { // Step by 2 instead of 1
+        const normalizedX = (x / width) * 8;
+        const y = centerY - waveFunction(normalizedX, waveTime) * (height * 0.3);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      
+      ctx.stroke();
+    };
+    
+    // Wave functions with three variants - simplified
+    const heartbeat = (x: number, t: number) => {
+      if (waveMode === 'morto') return 0;
+      const phase = (x + t * (waveMode === 'agitato' ? 3 : 2)) % (2 * Math.PI);
+      return Math.sin(phase) * (waveMode === 'agitato' ? 0.8 : 0.6);
+    };
+    
+    // Breathing wave - simplified
+    const breathing = (x: number, t: number) => {
+      if (waveMode === 'morto') return 0;
+      const speed = waveMode === 'agitato' ? 1.5 : 1;
+      return Math.sin((x + t) * speed) * 0.7;
+    };
+    
+    // Neural activity wave - simplified
+    const neural = (x: number, t: number) => {
+      if (waveMode === 'morto') return Math.sin(x * 0.1) * 0.02;
+      const activity = waveMode === 'agitato' ? 1.2 : 0.8;
+      return Math.sin((x + t) * 4 * activity) * 0.4 + Math.sin((x + t) * 8 * activity) * 0.1;
+    };
+    
+    drawWave(waveCanvasRef1.current, heartbeat, '#ffa955');
+    drawWave(waveCanvasRef2.current, breathing, '#72dff8'); 
+    drawWave(waveCanvasRef3.current, neural, '#60fcd5');
+  }, [waveTime, waveMode]);
+  
+  // Get display values based on wave mode
+  const getDisplayValues = () => {
+    switch(waveMode) {
+      case 'morto': return { heartRate: '0 BPM', breathing: '0 RPM', neural: 'PIATTO' };
+      case 'agitato': return { heartRate: '120 BPM', breathing: '24 RPM', neural: 'IPERATTIVO' };
+      default: return { heartRate: '72 BPM', breathing: '16 RPM', neural: 'NORMALE' };
+    }
+  };
+  const displayValues = getDisplayValues();
+
+  // Circular progress bar component
+  function CircularBar({
+    icon,
+    label,
+    value,
+    unit = '%',
+    color = '#7fd2ff',
+    size = 80,
+  }: {
+    icon: any;
+    label: string;
+    value: number;
+    unit?: string;
+    color?: string;
+    size?: number;
+  }) {
+    const percentage = Math.max(0, Math.min(100, value));
+    const strokeWidth = 6;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const strokeOffset = circumference - (percentage / 100) * circumference;
+
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <div style={{ position: 'relative', width: size, height: size }}>
+          <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke="#152f49"
+              strokeWidth={strokeWidth}
+              fill="none"
+            />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              fill="none"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeOffset}
+              strokeLinecap="butt"
+              style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+            />
+          </svg>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            <div style={{ color: '#3e6388ff', fontSize: 20, textAlign: 'center', marginBottom: 4, fontFamily: 'Varino, sans-serif' }}>
+              {Math.round(value)}
+            </div>
+          </div>
+        </div>
+        <div style={{ color: '#3e6388ff', fontSize: 12, letterSpacing: '2px', textAlign: 'center' }}>
+          {label}
+        </div>
+      </div>
+    );
+  }
   function TemperatureBar({
     value,
     min = -5,
@@ -401,9 +675,9 @@ export default function User({
         }}
       >
         <FontAwesomeIcon icon={faHeartPulse} style={{ color: '#ff8aa0' }} />
-        <div style={{ color: '#9fb8c7' }}>Salute</div>
+        <div style={{ color: '#9fb8c7' }}>SALUTE</div>
         <div
-          style={{
+          style={{  
             height: 10,
             background: 'rgba(10,30,50,0.7)',
             border: '1px solid rgba(223,255,255,0.12)',
@@ -676,7 +950,6 @@ export default function User({
   return (
     <div
       style={{
-        position: 'relative',
         width: '100vw',
         height: '100vh',
         color: '#dfffff',
@@ -690,145 +963,313 @@ export default function User({
           position: 'absolute',
           inset: 0,
           background: 'url(/bg.png) center/cover no-repeat',
+          zIndex: 0,
         }}
       />
 
-      {/* panels */}
+      {/* Left Container - Parametri Vitali */}
       <div
         style={{
-          position: 'absolute',
-          top: 24,
-          left: 24,
-          right: 24,
-          bottom: 24,
-          display: 'grid',
-          gridTemplateColumns: '420px 1fr',
-          gap: 16,
-          transform: 'translateX(300px)',
+          position: 'fixed',
+          left: `${LEFT_CONTAINER_DISTANCE}%`,
+          top: `${LEFT_CONTAINER_TOP}%`,
+          width: `${SIDE_CONTAINER_WIDTH}px`,
+          height: 'calc(100vh - 48px)',
+          overflow: 'auto',
+          zIndex: 100,
         }}
       >
-        {/* Left: medical dashboard */}
-        <div
-          style={{
-            background: 'rgba(10,30,50,0.65)',
-            border: '1px solid rgba(223,255,255,0.12)',
-            borderRadius: 8,
-            padding: 16,
-          }}
-        >
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
+          {/* Medical dashboard with 1.25x scale */}
+          <div
+            style={{
+              border: 'none', 
+              padding: 0,
+              flex: 'none',
+              height: 'auto',
+              transform: 'scale(1.1)',
+              transformOrigin: 'top left',
+              mixBlendMode: 'screen',
+            }}
+          >
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               marginBottom: 12,
+              transform: 'scale(0.8)',
+              transformOrigin: 'left',
+              mixBlendMode: 'screen',
             }}
           >
-            <div
-              style={{
-                fontFamily: 'Eurostile, sans-serif',
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-                color: '#9fb8c7',
-              }}
-            >
-              Monitor (valori)
-            </div>
-            <div style={{ fontSize: 12, color: '#9fb8c7' }}>
-              Modalità: {isRobot ? 'Robot' : 'Umano'}
-            </div>
           </div>
           {/* Se isRobot=false: mostra tutti i parametri; se isRobot=true: mostra solo salute ed energia */}
           <div style={{ display: 'grid', gap: 8, marginBottom: 12 }}>
-            {/* In questa pagina mostriamo i valori, il widget grafico rimane altrove */}
-            <HealthBar current={currentHealth} max={maxHealth} />
-            {!isRobot && (
-              <>
-                <TemperatureBar value={tempDisplay} />
-                <StatRow
-                  icon={faHeartPulse}
-                  label='Biofeedback'
-                  value={user.biofeedback}
-                  unit='%'
-                />
-                <StatRow
-                  icon={faLungs}
-                  label='Ossigeno'
-                  value={user.oxygen}
-                  unit='%'
-                />
-                <StatRow
-                  icon={faDroplet}
-                  label='Idratazione'
-                  value={user.thirst}
-                  unit='%'
-                />
-                <StatRow
-                  icon={faUtensils}
-                  label='Nutrizione'
-                  value={user.hunger}
-                  unit='%'
-                />
-                <StatRow
-                  icon={faMoon}
-                  label='Sonno'
-                  value={user.sleep}
-                  unit='%'
-                />
-              </>
-            )}
-            {isRobot && (
-              <>
-                <EnergyBar value={0.75} />
-                {/* altri parametri robot-specific potranno essere aggiunti qui */}
-              </>
-            )}
-          </div>
-          <div
-            style={{
-              fontFamily: 'Eurostile, sans-serif',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-              color: '#9fb8c7',
-              margin: '4px 0 8px',
-            }}
-          >
-            Parametri Vitali
-          </div>
-          <div style={{ display: 'grid', gap: 10 }}>
-            {/* Sezione già sopra riporta i parametri principali */}
-          </div>
+            {/* Redesigned circular stats layout */}
+            {!isRobot ? (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                gap: 20,
+                padding: '20px 0',
+                width: '100%',
+                marginRight: '10%'
+              }}>
+                {/* Left column: Hunger & Thirst */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+                  <CircularBar
+                    icon={faUtensils}
+                    value={user.hunger}
+                    label="FAME"
+                    color="#3e6388ff"
+                  />
+                  <CircularBar
+                    icon={faDroplet}
+                    label="SETE"
+                    value={user.thirst}
+                    color="#3e6388ff"
+                  />
+                </div>
 
-          {/* zaino occupancy quick view */}
-          <div
-            style={{
-              marginTop: 16,
-              padding: 10,
-              borderTop: '1px solid rgba(223,255,255,0.12)',
+                {/* Center: Health (larger) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <div style={{ position: 'relative', width: 120, height: 120 }}>
+                    <svg width={120} height={120} style={{ transform: 'rotate(-90deg)' }}>
+                      <circle
+                        cx={60}
+                        cy={60}
+                        r={54}
+                        stroke="#152f49"
+                        strokeWidth={8}
+                        fill="none"
+                      />
+                      <circle
+                        cx={60}
+                        cy={60}
+                        r={54}
+                        stroke="#dfffff"
+                        strokeWidth={8}
+                        fill="none"
+                        strokeDasharray={339.29}
+                        strokeDashoffset={339.29 - (healthPercentage / 100) * 339.29}
+                        strokeLinecap="butt"
+                        style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+                      />
+                    </svg>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        gap: 4,
+                      }}
+                    >
+                      <div style={{ color: '#dfffff', fontSize: 36, textAlign: 'center', marginBottom:6,fontFamily: 'Varino, sans-serif' }}>
+                        {currentHealth}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ color: '#9fb8c7', fontSize: 14, textAlign: 'center', fontWeight: 'bold' }}>
+                    SALUTE
+                  </div>
+                </div>
+
+                {/* Right column: Oxygen & Sleep */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+                  <CircularBar
+                    icon={faLungs}
+                    label="OSSIGENO"
+                    value={user.oxygen}
+                    color="#3e6388ff"
+                  />
+                  <CircularBar
+                    icon={faMoon}
+                    label="SONNO"
+                    value={user.sleep}
+                    color="#3e6388ff"
+                  />
+                </div>
+              </div>
+            ) : (
+              <EnergyBar value={user.energy} />
+            )}
+          </div>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {/* ECG Tracce */}
+            <div style={{ 
+              padding: '12px',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ color: '#9fb8c7' }}>Zaino</div>
-            <div>
-              Occupazione:{' '}
-              <strong style={{ color: '#dfffff' }}>{usedTiles}</strong> /{' '}
-              {totalTiles}
+              flexDirection: 'column',
+              gap: '12px'
+            }}>
+              {/* Heartbeat */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ color: '#ffa955', fontSize: '12px', minWidth: '80px', fontWeight: 'bold' }}>CARDIACO</div>
+                <canvas 
+                  ref={waveCanvasRef1}
+                  style={{ border: '1px solid rgba(255, 169, 85, 0.3)' }}
+                />
+                <div style={{ color: '#ffa955', fontSize: '11px', minWidth: '70px' }}>{displayValues.heartRate}</div>
+              </div>
+              
+              {/* Breathing */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ color: '#72dff8', fontSize: '12px', minWidth: '80px', fontWeight: 'bold' }}>RESPIRO</div>
+                <canvas 
+                  ref={waveCanvasRef2}
+                  style={{ border: '1px solid rgba(114, 223, 248, 0.3)' }}
+                />
+                <div style={{ color: '#72dff8', fontSize: '11px', minWidth: '70px' }}>{displayValues.breathing}</div>
+              </div>
+              
+              {/* Neural */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ color: '#60fcd5', fontSize: '12px', minWidth: '80px', fontWeight: 'bold' }}>NEURALE</div>
+                <canvas 
+                  ref={waveCanvasRef3}
+                  style={{ border: '1px solid rgba(96, 252, 213, 0.3)' }}
+                />
+                <div style={{ color: '#60fcd5', fontSize: '11px', minWidth: '70px' }}>{displayValues.neural}</div>
+              </div>
+              
+              {/* Debug controls */}
+              {/* Debug controls removed per user request */}
             </div>
           </div>
-        </div>
 
-        {/* Right: body silhouette + equip slots */}
+          </div>
+        </div>
+      </div>
+
+      {/* Center Container - Scan Organs */}
+      <div
+        style={{
+          position: 'fixed',
+          top: CENTER_CONTAINER_TOP,
+          transform: 'translateX(-50%)',
+          left: CENTER_CONTAINER_LEFT,
+          width: `${CENTER_CONTAINER_WIDTH}px`,
+          height: '625px',
+          zIndex: 2000,
+          pointerEvents: 'none',
+          mixBlendMode: 'screen',
+        }}
+      >
+        <div
+          style={{
+            background: 'transparent',
+            borderRadius: 8,
+            padding: 0,
+            position: 'relative',
+            width: '350px',
+            height: '625px',
+            overflow: 'hidden',
+            mixBlendMode: 'screen',
+          }}
+        >
+          {/* Background image */}
+          <img
+            src={`/${scannerImages[scannerImageIndex]}`}
+            alt={`Scan ${scannerImages[scannerImageIndex].replace('.png', '').replace('scan-', '')}`}
+            style={{
+              width: '350px',
+              height: '585px',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+          
+          {/* Lightweight scanning line - azzurro */}
+          <div
+            key={scannerKey} // Force re-render for smooth animation restart
+            style={{
+              position: 'absolute',
+              top: 10,
+              left: 10,
+              right: 10,
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent, #dfffff, transparent)',
+              boxShadow: '0 0 10px #dfffff',
+              animation: 'scanLine 2s ease-in-out infinite',
+              zIndex: 1,
+            }}
+          />
+          
+          {/* CSS Animation */}
+          <style>
+            {`
+              @keyframes scanLine {
+                0% { top: 10px; opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { top: 510px; opacity: 0; }
+              }
+            `}
+          </style>
+        </div>
+      </div>
+
+      {/* Bodyscan Container - Below Center Container */}
+      <div
+        style={{
+          position: 'fixed',
+          left: BODYSCAN_CONTAINER_LEFT,
+          top: BODYSCAN_CONTAINER_TOP,
+          transform: 'translateX(-50%)',
+          width: `55vh`,
+          height: `55vh`,
+          zIndex: 1500,
+          pointerEvents: 'none',
+          mixBlendMode: 'screen',
+          opacity: 1,
+        }}
+      >
+        <div
+          style={{
+            background: 'transparent',
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+          }}
+        >
+          <img
+            src="/bg-bodyscan.png"
+            alt="Body Scan Background"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Right Container - Schema Medico */}
+      <div
+        style={{
+          position: 'fixed',
+          right: `${RIGHT_CONTAINER_DISTANCE}%`,
+          top: 24,
+          width: `${SIDE_CONTAINER_WIDTH}px`,
+          height: 'calc(100vh - 48px)',
+          overflow: 'auto',
+          zIndex: 100,
+        }}
+      >
         <div
           style={{
             position: 'relative',
-            background: 'rgba(10,30,50,0.55)',
-            border: '1px solid rgba(223,255,255,0.12)',
+            background: 'transparent',
             borderRadius: 8,
             padding: 16,
-            width: '50%',
-            height: '80%',
+            height: '100%',
             overflow: 'visible',
           }}
         >
@@ -844,17 +1285,17 @@ export default function User({
             Schema Medico
           </div>
 
-          {/* Equipment slots positioned absolutely outside the flex container */}
-          {/* outfit slot */}
+          {/* Equipment slots - vertically aligned */}
           <div
             style={{
-              position: 'absolute',
-              top: 80,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 100,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 20,
+              paddingTop: 20,
             }}
           >
+            {/* Outfit slot at top */}
             <Slot
               label='Outfit'
               kind='risorsa'
@@ -862,34 +1303,35 @@ export default function User({
               onPick={() => openPicker('outfit')}
               onUnequip={() => unequipItem('outfit')}
             />
-          </div>
 
-          {/* hands slots */}
-          <div
-            style={{ position: 'absolute', top: 200, left: 50, zIndex: 100 }}
-          >
-            <Slot
-              label='Mano SX'
-              kind='arma'
-              item={equip.leftHand}
-              onPick={() => openPicker('left')}
-              onUnequip={() => unequipItem('left')}
-            />
-          </div>
-          <div
-            style={{ position: 'absolute', top: 200, right: 50, zIndex: 100 }}
-          >
-            <Slot
-              label='Mano DX'
-              kind='arma'
-              item={equip.rightHand}
-              onPick={() => openPicker('right')}
-              onUnequip={() => unequipItem('right')}
-            />
+            {/* Hands slots below, side by side */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 20,
+                justifyContent: 'center',
+                width: '100%',
+              }}
+            >
+              <Slot
+                label='Mano SX'
+                kind='arma'
+                item={equip.leftHand}
+                onPick={() => openPicker('left')}
+                onUnequip={() => unequipItem('left')}
+              />
+              <Slot
+                label='Mano DX'
+                kind='arma'
+                item={equip.rightHand}
+                onPick={() => openPicker('right')}
+                onUnequip={() => unequipItem('right')}
+              />
+            </div>
           </div>
 
           {error && (
-            <div style={{ marginTop: 12, color: '#ff8a8a' }}>{error}</div>
+            <div style={{ marginTop: 20, color: '#ff8a8a', textAlign: 'center' }}>{error}</div>
           )}
         </div>
       </div>
@@ -1010,6 +1452,63 @@ export default function User({
           </div>
         </div>
       )}
+      
+      {/* Encefalogramma container - separate from vital parameters */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '2%',
+          left: '18%',
+          width: '40vw',
+          height: '40vh',
+          zIndex: 1000,
+          pointerEvents: 'none',
+          mixBlendMode: 'screen'
+        }}
+      >
+        <img
+          src={currentHealth === 0 ? '/encefaloanalisidead.png' : '/encefaloanalisilive.png'}
+          alt={currentHealth === 0 ? 'Encefalogramma morto' : 'Encefalogramma vivo'}
+          onError={(e) => {
+            // Enhanced error handling with multiple retry attempts
+            const img = e.target as HTMLImageElement;
+            const retryCount = parseInt(img.dataset.retryCount || '0');
+            if (retryCount < 3) {
+              img.dataset.retryCount = (retryCount + 1).toString();
+              setTimeout(() => {
+                const currentSrc = img.src;
+                const baseUrl = currentSrc.split('?')[0];
+                img.src = baseUrl + '?v=' + Date.now() + '&retry=' + retryCount;
+              }, 500 * retryCount); // Progressive delay
+            }
+          }}
+          onLoad={(e) => {
+            // Reset retry count on successful load
+            const img = e.target as HTMLImageElement;
+            img.dataset.retryCount = '0';
+          }}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain'
+          }}
+        />
+      </div>
+      
+      {/* Bioscan Container - Outside all containers for proper blend mode */}
+      <div
+        style={{
+          position: 'fixed',
+          left: `${BIOSCAN_CONTAINER_DISTANCE}%`,
+          top: BIOSCAN_CONTAINER_TOP,
+          width: BIOSCAN_CONTAINER_SIZE,
+          height: BIOSCAN_CONTAINER_SIZE,
+          zIndex: 1,
+          pointerEvents: 'none',
+          background: 'url(/bg-bioscan.png) center/contain no-repeat',
+          mixBlendMode: 'screen',
+        }}
+      />
     </div>
   );
 }

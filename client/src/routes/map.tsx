@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { FaCloud, FaBorderAll, FaMapMarkerAlt, FaTimes, FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa';
 import TerminalLogs from '../components/terminallogs';
 import { useUser } from '../context/user';
+import { cardio } from 'ldrs';
 
 // Debug: griglia di rivelazione della mappa (UV space)
 export const REVEAL_COLS = 16;
@@ -55,6 +56,32 @@ export default function Map() {
     color: string;
     description: string;
   }>({ name: '', color: '#dfffff', description: '' });
+
+  // Register cardio for loading fallback
+  useEffect(() => {
+    cardio.register();
+  }, []);
+
+  // Loading fallback component
+  const LoadingFallback = () => (
+    <Html center>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'rgba(0,0,0,0.8)',
+        padding: '20px',
+        borderRadius: '10px'
+      }}>
+        <l-cardio
+          size="80"
+          stroke="3"
+          speed="2" 
+          color="#dfffff"
+        ></l-cardio>
+      </div>
+    </Html>
+  );
   const [tempXMarker, setTempXMarker] = useState<{ position: THREE.Vector3; screenPos: { x: number; y: number } } | null>(null);
   const [viewingMarker, setViewingMarker] = useState<{
     marker: MapMarker;
@@ -461,7 +488,7 @@ export default function Map() {
           />
           <pointLight position={[5, 0, 5]} intensity={0.6} color="#ffffff" />
           <pointLight position={[-5, 0, -5]} intensity={0.4} color="#4a9eff" />
-          <Suspense fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
             {/* <SmallPlanet /> */}
           </Suspense>
         </Canvas>
@@ -773,7 +800,7 @@ export default function Map() {
           />
           <pointLight position={[2, 2, 3]} intensity={0.8} color={'#ffffff'} />
 
-          <Suspense fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
             <PlanetScene
               cloudsEnabled={cloudsEnabled}
               gridEnabled={gridEnabled}

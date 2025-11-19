@@ -14,9 +14,8 @@ import {
   faLungs,
   faMoon,
   faHeartPulse,
-  faGun,
   faRotateLeft,
-  faSuitcase,
+  faBan,
 } from '@fortawesome/free-solid-svg-icons';
 import ScannerEffect from '../components/scannerEffect';
 // import MonitorWidget from "../components/monitorwidget"; // non usato qui, mostriamo soli valori
@@ -116,7 +115,7 @@ export default function User({
 
       // Layout constants
   const LEFT_CONTAINER_DISTANCE = 19; // Percentage from left (increased spacing)
-  const RIGHT_CONTAINER_DISTANCE = 5; // Percentage from right (increased spacing)
+  const RIGHT_CONTAINER_DISTANCE = 5.85; // Percentage from right (increased spacing)
   const CENTER_CONTAINER_LEFT = '57.25%'; // Center container horizontal position
   const CENTER_CONTAINER_TOP = '4%'; // Center container vertical position
   const BODYSCAN_CONTAINER_LEFT = '55%'; // Bodyscan container horizontal position
@@ -501,9 +500,9 @@ export default function User({
       return Math.sin((x + t) * 4 * activity) * 0.4 + Math.sin((x + t) * 8 * activity) * 0.1;
     };
     
-    drawWave(waveCanvasRef1.current, heartbeat, '#ffa955');
-    drawWave(waveCanvasRef2.current, breathing, '#72dff8'); 
-    drawWave(waveCanvasRef3.current, neural, '#60fcd5');
+    drawWave(waveCanvasRef1.current, heartbeat, '#dfffff');
+    drawWave(waveCanvasRef2.current, breathing, '#dfffff'); 
+    drawWave(waveCanvasRef3.current, neural, '#dfffff');
   }, [waveTime, waveMode]);
   
   // Get display values based on wave mode
@@ -801,24 +800,24 @@ export default function User({
       <div
         style={{
           position: 'relative',
-          width: 180,
-          height: 180,
-          borderRadius: 12,
-          background: 'rgba(10,30,50,0.6)',
-          border: '1px solid rgba(223,255,255,0.12)',
+          width: 160,
+          height: 160,
+          borderRadius: 1000,
+          background: 'transparent',
+          border: 'none',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 10,
           zIndex: 10,
+          marginTop: 4,
         }}
       >
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: `url(/bg-slot.png) center/contain no-repeat`,
+            background: `url(/bg-1x1.png) center/contain no-repeat`,
             opacity: 0.2,
             pointerEvents: 'none',
           }}
@@ -830,7 +829,7 @@ export default function User({
             top: 10,
             left: 10,
             fontSize: 14,
-            color: '#9fb8c7',
+            color: '#dfffff',
             textTransform: 'uppercase',
             letterSpacing: 1,
             pointerEvents: 'none',
@@ -890,17 +889,7 @@ export default function User({
           </>
         ) : (
           <>
-            <div
-              aria-hidden
-              style={{
-                opacity: 0.65,
-                color: '#9fb8c7',
-                pointerEvents: 'none',
-                fontSize: 24,
-              }}
-            >
-              <FontAwesomeIcon icon={kind === 'arma' ? faGun : faSuitcase} />
-            </div>
+
             <div
               onMouseUp={e => {
                 e.preventDefault();
@@ -912,11 +901,13 @@ export default function User({
               }}
               style={{
                 cursor: 'pointer',
-                background: 'rgba(10,30,50,0.8)',
+                backgroundImage: 'url(/bg-2x1.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 border: '1px solid rgba(223,255,255,0.18)',
                 color: '#dfffff',
                 padding: '10px 16px',
-                borderRadius: 6,
+                borderRadius: 0,
                 zIndex: 99999,
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
@@ -1008,14 +999,14 @@ export default function User({
           <div style={{ display: 'grid', gap: 8, marginBottom: 12 }}>
             {/* Redesigned circular stats layout */}
             {!isRobot ? (
-              <div style={{ 
+                            <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 gap: 20,
                 padding: '20px 0',
                 width: '100%',
-                marginRight: '10%'
+                marginLeft: '-2.5%'
               }}>
                 {/* Left column: Hunger & Thirst */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
@@ -1074,7 +1065,7 @@ export default function User({
                       </div>
                     </div>
                   </div>
-                  <div style={{ color: '#9fb8c7', fontSize: 14, textAlign: 'center', fontWeight: 'bold' }}>
+                  <div style={{ color: '#9fb8c7', fontSize: 14, letterSpacing: '0.05em', textAlign: 'center' }}>
                     SALUTE
                   </div>
                 </div>
@@ -1109,32 +1100,35 @@ export default function User({
             }}>
               {/* Heartbeat */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ color: '#ffa955', fontSize: '12px', minWidth: '80px', fontWeight: 'bold' }}>CARDIACO</div>
+                <div style={{ color: '#3e6388ff', fontSize: '12px', letterSpacing: 2, minWidth: '40px'}}>NEURALE</div>
                 <canvas 
                   ref={waveCanvasRef1}
-                  style={{ border: '1px solid rgba(255, 169, 85, 0.3)' }}
+                  style={{ border: '1px solid #3e6388ff' }}
                 />
-                <div style={{ color: '#ffa955', fontSize: '11px', minWidth: '70px' }}>{displayValues.heartRate}</div>
+                <div style={{ color: '#3e6388ff', fontSize: '12px', letterSpacing: 2, minWidth: '80px' }}>{displayValues.heartRate}</div>
               </div>
               
               {/* Breathing */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ color: '#72dff8', fontSize: '12px', minWidth: '80px', fontWeight: 'bold' }}>RESPIRO</div>
+                <div style={{ color: '#3e6388ff', fontSize: '12px', letterSpacing: 2, minWidth: '40px'}}>NEURALE</div>
                 <canvas 
                   ref={waveCanvasRef2}
-                  style={{ border: '1px solid rgba(114, 223, 248, 0.3)' }}
+                  style={{ border: '1px solid #3e6388ff' }}
                 />
-                <div style={{ color: '#72dff8', fontSize: '11px', minWidth: '70px' }}>{displayValues.breathing}</div>
+                <div style={{ color: '#3e6388ff', fontSize: '12px', letterSpacing: 2, minWidth: '80px' }}>{displayValues.breathing}</div>
               </div>
+              
+                
+              
               
               {/* Neural */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ color: '#60fcd5', fontSize: '12px', minWidth: '80px', fontWeight: 'bold' }}>NEURALE</div>
+                <div style={{ color: '#3e6388ff', fontSize: '12px', letterSpacing: 2, minWidth: '40px'}}>NEURALE</div>
                 <canvas 
                   ref={waveCanvasRef3}
-                  style={{ border: '1px solid rgba(96, 252, 213, 0.3)' }}
+                  style={{ border: '1px solid #3e6388ff' }}
                 />
-                <div style={{ color: '#60fcd5', fontSize: '11px', minWidth: '70px' }}>{displayValues.neural}</div>
+                <div style={{ color: '#3e6388ff', fontSize: '12px', letterSpacing: 2, minWidth: '80px' }}>{displayValues.neural}</div>
               </div>
               
               {/* Debug controls */}
@@ -1251,6 +1245,21 @@ export default function User({
         </div>
       </div>
 
+      {/* Right Container Background - Schema Medico bioscan background */}
+      <div
+        style={{
+          position: 'fixed',
+          right: `${RIGHT_CONTAINER_DISTANCE}%`,
+          top: BIOSCAN_CONTAINER_TOP,
+          width: BIOSCAN_CONTAINER_SIZE,
+          height: BIOSCAN_CONTAINER_SIZE,
+          zIndex: 1,
+          pointerEvents: 'none',
+          background: 'url(/bg-gearscan.png) center/contain no-repeat',
+          mixBlendMode: 'screen',
+        }}
+      />
+
       {/* Right Container - Schema Medico */}
       <div
         style={{
@@ -1273,18 +1282,6 @@ export default function User({
             overflow: 'visible',
           }}
         >
-          <div
-            style={{
-              fontFamily: 'Eurostile, sans-serif',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-              color: '#9fb8c7',
-              marginBottom: 12,
-            }}
-          >
-            Schema Medico
-          </div>
-
           {/* Equipment slots - vertically aligned */}
           <div
             style={{
@@ -1295,7 +1292,7 @@ export default function User({
               paddingTop: 20,
             }}
           >
-            {/* Outfit slot at top */}
+            {/* All slots in column */}
             <Slot
               label='Outfit'
               kind='risorsa'
@@ -1303,31 +1300,22 @@ export default function User({
               onPick={() => openPicker('outfit')}
               onUnequip={() => unequipItem('outfit')}
             />
-
-            {/* Hands slots below, side by side */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 20,
-                justifyContent: 'center',
-                width: '100%',
-              }}
-            >
-              <Slot
-                label='Mano SX'
-                kind='arma'
-                item={equip.leftHand}
-                onPick={() => openPicker('left')}
-                onUnequip={() => unequipItem('left')}
-              />
-              <Slot
-                label='Mano DX'
-                kind='arma'
-                item={equip.rightHand}
-                onPick={() => openPicker('right')}
-                onUnequip={() => unequipItem('right')}
-              />
-            </div>
+            
+            <Slot
+              label='Mano SX'
+              kind='arma'
+              item={equip.leftHand}
+              onPick={() => openPicker('left')}
+              onUnequip={() => unequipItem('left')}
+            />
+            
+            <Slot
+              label='Mano DX'
+              kind='arma'
+              item={equip.rightHand}
+              onPick={() => openPicker('right')}
+              onUnequip={() => unequipItem('right')}
+            />
           </div>
 
           {error && (

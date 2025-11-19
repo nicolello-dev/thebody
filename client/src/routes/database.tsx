@@ -67,12 +67,30 @@ export default function Database(props: DatabaseProps) {
         />
       </div>
 
-      {/* Seconda GIF overlay (screen blend, ruotata 90° a destra) */}
-      <div className='database-gif2-container' aria-hidden>
+      {/* Seconda GIF overlay (centrata, full-screen, capovolta lungo asse centrale) */}
+      <div className='database-gif2-container' aria-hidden style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%) scaleY(-1)',
+        width: '100vw',
+        height: 'auto',
+        zIndex: 1,
+        pointerEvents: 'none',
+        mixBlendMode: 'screen',
+      }}>
         <img
           src='/tensorflow.gif'
           alt='Tensor Overlay'
           className='database-gif2'
+          style={{ 
+            mixBlendMode: 'screen', 
+            opacity: 0.1,
+            filter: 'brightness(-200%)',
+            width: '100%', 
+            height: '100%', 
+            transform: 'scaleX(-1)',
+          }}
         />
       </div>
 

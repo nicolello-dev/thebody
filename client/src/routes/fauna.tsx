@@ -432,8 +432,6 @@ export default function Page() {
                     </div>
                   </div>
                 </div>
-                {/* Nuovo rettangolo alla destra di "Statistiche" con gli stessi parametri del divisore */}
-                <div className='fauna-divider' aria-hidden />
               </div>
             </div>
           </div>
